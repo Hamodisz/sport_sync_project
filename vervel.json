@@ -1,0 +1,5 @@
+{
+  "buildCommand": "bash start.sh",
+  "outputDirectory": ".",
+  "framework": "other"
+}

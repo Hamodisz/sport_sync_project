@@ -1,9 +1,8 @@
+import streamlit as st
 
-import gradio as gr
-from backend_gpt import generate_response
+st.set_page_config(page_title="توصية الرياضة المناسبة", layout="centered")
 
-def handle_input(user_input):
-    return generate_response(user_input)
+st.title("مرحبًا بك في نظام توصية الرياضة 🧠🏋️‍♂️")
+st.write("سيتم تحليل إجاباتك واقتراح الرياضة الأنسب لك.")
 
-iface = gr.Interface(fn=handle_input, inputs="text", outputs="text")
-iface.launch()
+# (أضف هنا كود الأسئلة والتوصية إذا كنت حافظه)
