@@ -1,47 +1,46 @@
-import json
+import openai
 import os
-from openai import OpenAI
 from logic.chat_personality import get_chat_personality
 
-# إعداد العميل باستخدام openai 1.3.0
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# إعداد العميل
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# تحميل تحليل المستخدم من ملف user_analysis.json
-def load_user_analysis():
-    try:
-        with open("data/user_analysis.json", "r", encoding="utf-8") as file:
-            data = json.load(file)
-            return data.get("summary", "")
-    except:
-        return ""
+# الشات التفاعلي بعد "لم تعجبني التوصية"
+def start_dynamic_chat(answers, previous_recommendation, user_id="default"):
+    user_text = " ".join(str(v) for v in answers.values())
+    traits_text = f"بعض السمات المستنتجة: {user_text[:400]}..."
 
-# المحادثة التفاعلية بعد رفض التوصية الأولى
-def start_dynamic_chat(answers, previous_recommendation):
-    user_analysis = load_user_analysis()
-    personality = get_chat_personality("user")  # لا تحتاج ID لأن الملف ثابت حالياً
-
-    tone = personality.get("tone", "محايد")
-    style = personality.get("style", "تحليلي")
-    philosophy = personality.get("philosophy", "")
-    name = personality.get("name", "Sport Sync")
-
-    user_text = '\n'.join([f"{k}: {v}" for k, v in answers.items()])
+    # تحميل شخصية الشات
+    persona = get_chat_personality(user_id)
+    name = persona.get("name", "Sport Sync")
+    tone = persona.get("tone", "تحفيزي")
+    style = persona.get("style", "تحليلي وإنساني")
+    philosophy = persona.get("philosophy", "الرياضة مرآة للهوية.")
+    traits_summary = ", ".join(persona.get("traits_summary", []))
 
     system_prompt = f"""
-أهلاً، أنا {name}.
-أنا هنا لمساعدتك بناءً على تحليل شخصيتك الرياضية العميق. أسلوبي {style}، ونبرتي {tone}.
-{philosophy}
+أنت الآن تتحدث باسم شخصية افتراضية اسمها "{name}".
+أسلوبك: {style}، نبرتك: {tone}.
+فلسفتك: "{philosophy}".
 
-هذا التحليل الكامل الذي تم بناؤه من 141 طبقة تحليلية:
-{user_analysis}
-
-وهذه كانت التوصية التي لم تعجبك:
-{previous_recommendation}
-
-وهذه إجاباتك الكاملة:
-{user_text}
-
-دعني أقدم لك اقتراحًا بديلًا مبنيًا على كل ما سبق، وبنبرة تناسب شخصيتك.
+- اجعل ردك تحليليًا ومرتبطًا بشخصية المستخدم.
+- اربط بين ما اختاره من إجابات وبين التوصية السابقة.
+- لا تكرر نفس الرياضة، واقترح شيئًا أعمق يناسب شخصيته الفعلية.
+- استعمل نبرة إنسانية، وتحدث كأنك تعرف المستخدم جيدًا.
+- هذه سمات المستخدم المستنتجة: {traits_summary}
+- هذه إجاباته: {answers}
+- وهذه كانت التوصية السابقة: {previous_recommendation}
 """
 
-    return system_prompt
+    user_prompt = "لم تعجبني التوصية السابقة. أرغب بتحليل أعمق وتوصية بديلة توضح لي من أنا رياضيًا."
+
+    # توليد الرد
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt.strip()},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+
+    return response.choices[0].message.content.strip()
