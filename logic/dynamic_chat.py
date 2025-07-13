@@ -1,6 +1,7 @@
 import json
 import os
-from openai import OpenAI  # ✅ التعديل هنا
+from openai import OpenAI
+from logic.chat_personality import get_chat_personality
 
 # إعداد العميل باستخدام openai 1.3.0
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -17,36 +18,30 @@ def load_user_analysis():
 # المحادثة التفاعلية بعد رفض التوصية الأولى
 def start_dynamic_chat(answers, previous_recommendation):
     user_analysis = load_user_analysis()
+    personality = get_chat_personality("user")  # لا تحتاج ID لأن الملف ثابت حالياً
 
-    user_text = "\n".join([f"{k}: {v}" for k, v in answers.items()])
+    tone = personality.get("tone", "محايد")
+    style = personality.get("style", "تحليلي")
+    philosophy = personality.get("philosophy", "")
+    name = personality.get("name", "Sport Sync")
+
+    user_text = '\n'.join([f"{k}: {v}" for k, v in answers.items()])
 
     system_prompt = f"""
-أنت مساعد ذكي مختص في تحليل الشخصية الرياضية وتوليد توصيات رياضية دقيقة.
-- هذا ملخص تحليل الشخصية للمستخدم (من 141 طبقة تحليلية): 
+أهلاً، أنا {name}.
+أنا هنا لمساعدتك بناءً على تحليل شخصيتك الرياضية العميق. أسلوبي {style}، ونبرتي {tone}.
+{philosophy}
+
+هذا التحليل الكامل الذي تم بناؤه من 141 طبقة تحليلية:
 {user_analysis}
 
-- وهذه التوصية السابقة التي لم تعجبه: 
+وهذه كانت التوصية التي لم تعجبك:
 {previous_recommendation}
 
-- وهذه إجاباته الكاملة:
+وهذه إجاباتك الكاملة:
 {user_text}
 
-مهمتك:
-- تحليل نية المستخدم وراء رفض التوصية.
-- لا تكرر نفس الرياضة السابقة إطلاقًا.
-- اربط بين إجابات المستخدم وتحليل شخصيته لتقديم توصية جديدة أعمق وأكثر تخصيصًا.
-- برّر التوصية الجديدة بذكاء ووضّح كيف تعكس سماته الحقيقية.
+دعني أقدم لك اقتراحًا بديلًا مبنيًا على كل ما سبق، وبنبرة تناسب شخصيتك.
 """
 
-    user_prompt = "لم تعجبني الرياضة التي اقترحتها لي، أرغب بشيء أقرب لشخصيتي فعلاً."
-
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        temperature=0.8
-    )
-
-    return response.choices[0].message.content.strip()
+    return system_prompt
