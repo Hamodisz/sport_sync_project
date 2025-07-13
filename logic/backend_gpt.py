@@ -1,66 +1,47 @@
+import openai
 import os
 import json
-import openai
 
-from logic.analysis_layers_1_40 import apply_layers_1_40
-from logic.analysis_layers_41_80 import apply_layers_41_80
-from logic.analysis_layers_81_100 import apply_layers_81_100
-from logic.analysis_layers_101_141 import apply_layers_101_141
-
-# إعداد العميل باستخدام openai 1.3.0+
+# إعداد العميل لـ openai
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# حفظ التحليل في ملف بناءً على user_id
-def save_user_analysis(user_id, traits, answers, recommendation):
-    os.makedirs("data", exist_ok=True)
-    with open(f"data/{user_id}_analysis.json", "w", encoding="utf-8") as f:
-        json.dump({
-            "traits": traits,
-            "summary": f"السمات: {traits}\n\nالإجابات:\n{answers}\n\nالتوصية: {recommendation}"
-        }, f, ensure_ascii=False, indent=2)
+# استيراد الطبقات من مجلد analysis بدل logic
+from analysis.analysis_layers_1_40 import apply_layers_1_40
+from analysis.analysis_layers_41_80 import apply_layers_41_80
+from analysis.analysis_layers_81_100 import apply_layers_81_100
+from analysis.analysis_layers_101_141 import apply_layers_101_141
 
-# توليد التوصية الرياضية
-def generate_sport_recommendation(answers, lang, user_id):
-    user_text = " ".join(str(v) for v in answers.values())
+def apply_all_analysis_layers(user_answers):
+    analysis_1_40 = apply_layers_1_40(user_answers)
+    analysis_41_80 = apply_layers_41_80(user_answers)
+    analysis_81_100 = apply_layers_81_100(user_answers)
+    analysis_101_141 = apply_layers_101_141(user_answers)
 
-    # تحليل السمات من جميع الطبقات
-    traits = list(set(
-        apply_layers_1_40(user_text)
-        + apply_layers_41_80(user_text)
-        + apply_layers_81_100(user_text)
-        + apply_layers_101_141(user_text)
-    ))
+    return {
+        "1-40": analysis_1_40,
+        "41-80": analysis_41_80,
+        "81-100": analysis_81_100,
+        "101-141": analysis_101_141,
+    }
 
-    # بناء البرومبت
-    system_prompt = f"""
-أنت مساعد ذكي من Sport Sync.
-مهمتك:
-- تحليل إجابات المستخدم.
-- استنتاج سماته النفسية.
-- اقتراح رياضة واحدة تناسبه تمامًا.
-- يجب أن تكون التوصية مبررة بعمق فلسفي.
+def generate_sport_recommendation(user_answers, lang):
+    all_layers = apply_all_analysis_layers(user_answers)
 
-السمات المستخرجة:
-{traits if traits else "لم يتم استخراج سمات واضحة."}
+    prompt = f"""
+    هذه إجابات المستخدم على استبيان تحليل الشخصية الرياضية، مع التحليل الناتج من 141 طبقة نفسية وسلوكية:
+    
+    {json.dumps(all_layers, ensure_ascii=False, indent=2)}
 
-إجابات المستخدم:
-{answers}
-    """.strip()
+    استنادًا إلى هذا التحليل، رشّح له رياضة واحدة فقط، واشرح لماذا تناسبه تحديدًا.
+    اكتب الإجابة باللغة: {lang}
+    """
 
-    user_prompt = f"أريد رياضة تناسب شخصيتي. اللغة: {lang}."
-
-    # إرسال للذكاء الاصطناعي
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "system", "content": "أنت مساعد خبير في علم النفس الرياضي."},
+            {"role": "user", "content": prompt}
         ]
     )
 
-    recommendation = response.choices[0].message.content.strip()
-
-    # حفظ التحليل
-    save_user_analysis(user_id, traits, answers, recommendation)
-
-    return recommendation
+    return response.choices[0].message.content.strip()
