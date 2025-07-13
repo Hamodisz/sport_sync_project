@@ -2,10 +2,10 @@ import os
 import json
 import openai
 
-from analysis_layers_1_40 import apply_layers_1_40
-from analysis_layers_41_80 import apply_layers_41_80
-from analysis_layers_81_100 import apply_layers_81_100
-from analysis_layers_101_141 import apply_layers_101_141
+from logic.analysis_layers_1_40 import apply_layers_1_40
+from logic.analysis_layers_41_80 import apply_layers_41_80
+from logic.analysis_layers_81_100 import apply_layers_81_100
+from logic.analysis_layers_101_141 import apply_layers_101_141
 from logic.chat_personality import chat_identity
 
 # إعداد العميل باستخدام openai 1.3.0+
