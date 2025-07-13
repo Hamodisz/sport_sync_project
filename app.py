@@ -49,7 +49,7 @@ for q in questions:
     question = q["question"]
     options = q["options"]
     multi = q.get("multi", False)
-    allow_free = q.get("free", False)
+    allow_free = q.get("free_text", False)
 
     if multi:
         selected = st.multiselect(question, options, key=question)
@@ -72,7 +72,7 @@ for q in questions:
 # ---------------------
 if st.button("🔎 احصل على توصيتك"):
     with st.spinner("جاري التحليل..."):
-        recommendation = generate_sport_recommendation(answers, lang)
+        recommendation = generate_sport_recommendation(answers, lang, user_id)
         store_user_session(user_id, answers, recommendation, lang)
         st.success("✨ هذه هي الرياضة الأنسب لك:")
         st.write(recommendation)
@@ -92,7 +92,7 @@ if st.button("🔎 احصل على توصيتك"):
         # زر لم تعجبني التوصية
         if st.button("🤔 لم أقتنع بالنتيجة"):
             with st.spinner("جاري إعادة التحليل بناءً على إجاباتك وتحليل شخصيتك..."):
-                followup = start_dynamic_chat(answers, recommendation)
+                followup = start_dynamic_chat(answers, recommendation, user_id)
                 st.subheader("🔁 تحليل أعمق:")
                 st.write(followup)
 
@@ -100,7 +100,7 @@ if st.button("🔎 احصل على توصيتك"):
 # عرض التحليل الجانبي
 # ---------------------
 try:
-    with open("data/user_analysis.json", "r", encoding="utf-8") as f:
+    with open(f"data/{user_id}_analysis.json", "r", encoding="utf-8") as f:
         user_analysis = json.load(f)
         st.sidebar.markdown("🧠 تحليل شخصيتك:")
         st.sidebar.write(user_analysis.get("summary", ""))
