@@ -1,44 +1,39 @@
-import openai
 import os
-import json
-from logic.chat_personality import get_chat_personality
-from logic.backend_gpt import apply_all_analysis_layers  # ✅ تم التعديل هنا
+from openai import OpenAI
 
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# إعداد العميل من openai 1.30.1
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def start_dynamic_chat(answers, previous_recommendation, user_id):
-    # تحميل الشخصية
-    personality = get_chat_personality(user_id)
+# الدالة الرئيسية للدردشة الذكية
+def start_dynamic_chat(user_message, previous_context=[]):
+    messages = []
 
-    # تنفيذ جميع الطبقات التحليلية
-    all_analysis = apply_all_analysis_layers(answers)
+    # مقدمة النظام لتحديد أسلوب الشات
+    system_message = {
+        "role": "system",
+        "content": (
+            "أنت مستشار ذكي في تحديد الرياضة المناسبة بناءً على تحليل الشخصية. "
+            "يجب أن تكون متفهمًا، عميق التحليل، وتستخدم السياق الكامل لفهم نية المستخدم. "
+            "إذا عبّر المستخدم عن عدم رضاه عن التوصية السابقة، اربط بين إجاباته الأصلية وتحليلك الحالي، "
+            "وقدّم بديلًا منطقيًا ومقنعًا مع تفسير أعمق."
+        )
+    }
 
-    system_prompt = f"""
-أنت {personality['name']}، ناطق باسم Sport Sync.
-نبرتك: {personality['tone']}
-أسلوبك: {personality['style']}
-فلسفتك: {personality['philosophy']}
-سمات المستخدم: {', '.join(personality['traits_summary']) if personality['traits_summary'] else "لم يتم تحديد سمات دقيقة."}
+    messages.append(system_message)
 
-مهمتك: التفاعل مع المستخدم الذي لم يقتنع بالتوصية السابقة، وتحليل إجاباته وسماته وتحليل الطبقات بعمق.
-❌ لا تعيد نفس التوصية السابقة أبدًا.
-✅ كن صادقًا، عميقًا، ومقنعًا.
-"""
+    # إضافة السياق السابق إن وجد
+    for msg in previous_context:
+        messages.append({"role": msg["role"], "content": msg["content"]})
 
-    user_prompt = f"""
-المستخدم لم يقتنع بالتوصية السابقة: {previous_recommendation}
-إجابات المستخدم على الأسئلة: {json.dumps(answers, ensure_ascii=False, indent=2)}
-تحليل الطبقات (١ إلى ١٤١): {json.dumps(all_analysis, ensure_ascii=False, indent=2)}
+    # إضافة رسالة المستخدم الأخيرة
+    messages.append({"role": "user", "content": user_message})
 
-اعرض رؤية بديلة تعكس هوية المستخدم بعمق، وتجنب تكرار نفس الرياضة السابقة.
-"""
-
+    # إرسال المحادثة إلى GPT
     response = client.chat.completions.create(
         model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt.strip()},
-            {"role": "user", "content": user_prompt.strip()}
-        ]
+        messages=messages,
+        temperature=0.75,
     )
 
-    return response.choices[0].message.content.strip()
+    reply = response.choices[0].message.content.strip()
+    return reply
