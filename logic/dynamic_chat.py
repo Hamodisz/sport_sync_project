@@ -1,39 +1,25 @@
 import os
-from openai import OpenAI
+import openai
 
-# إعداد العميل من openai 1.30.1
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# إعداد المفتاح بالطريقة الصحيحة
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# الدالة الرئيسية للدردشة الذكية
-def start_dynamic_chat(user_message, previous_context=[]):
-    messages = []
+# دالة المحادثة الديناميكية
+def start_dynamic_chat(user_message, lang="العربية"):
+    if lang == "العربية":
+        system_prompt = "أنت مساعد ذكي وداعم، تساعد المستخدم في فهم الرياضة المناسبة له بناءً على تحليله السابق."
+    else:
+        system_prompt = "You are a smart and supportive assistant helping the user understand the best sport for them based on previous analysis."
 
-    # مقدمة النظام لتحديد أسلوب الشات
-    system_message = {
-        "role": "system",
-        "content": (
-            "أنت مستشار ذكي في تحديد الرياضة المناسبة بناءً على تحليل الشخصية. "
-            "يجب أن تكون متفهمًا، عميق التحليل، وتستخدم السياق الكامل لفهم نية المستخدم. "
-            "إذا عبّر المستخدم عن عدم رضاه عن التوصية السابقة، اربط بين إجاباته الأصلية وتحليلك الحالي، "
-            "وقدّم بديلًا منطقيًا ومقنعًا مع تفسير أعمق."
-        )
-    }
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message}
+    ]
 
-    messages.append(system_message)
-
-    # إضافة السياق السابق إن وجد
-    for msg in previous_context:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-
-    # إضافة رسالة المستخدم الأخيرة
-    messages.append({"role": "user", "content": user_message})
-
-    # إرسال المحادثة إلى GPT
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages,
-        temperature=0.75,
+        temperature=0.7,
     )
 
-    reply = response.choices[0].message.content.strip()
-    return reply
+    return response.choices[0].message.content
