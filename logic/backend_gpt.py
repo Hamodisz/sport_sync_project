@@ -2,21 +2,26 @@ import openai
 import os
 import json
 
-# إعداد المفتاح
+# إعداد المفتاح من environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# استيراد الطبقات
+# استيراد الطبقات التحليلية
 from analysis.analysis_layers_1_40 import apply_layers_1_40
 from analysis.analysis_layers_41_80 import apply_layers_41_80
 from analysis.analysis_layers_81_100 import apply_layers_81_100
 from analysis.analysis_layers_101_141 import apply_layers_101_141
 
 def apply_all_analysis_layers(user_answers):
+    analysis_1_40 = apply_layers_1_40(user_answers)
+    analysis_41_80 = apply_layers_41_80(user_answers)
+    analysis_81_100 = apply_layers_81_100(user_answers)
+    analysis_101_141 = apply_layers_101_141(user_answers)
+
     return {
-        "1-40": apply_layers_1_40(user_answers),
-        "41-80": apply_layers_41_80(user_answers),
-        "81-100": apply_layers_81_100(user_answers),
-        "101-141": apply_layers_101_141(user_answers),
+        "1-40": analysis_1_40,
+        "41-80": analysis_41_80,
+        "81-100": analysis_81_100,
+        "101-141": analysis_101_141,
     }
 
 def generate_sport_recommendation(user_answers, lang):
@@ -31,7 +36,7 @@ def generate_sport_recommendation(user_answers, lang):
     اكتب الإجابة باللغة: {lang}
     """
 
-    response = openai.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "أنت مساعد خبير في علم النفس الرياضي."},
@@ -39,4 +44,4 @@ def generate_sport_recommendation(user_answers, lang):
         ]
     )
 
-    return response.choices[0].message.content.strip()
+    return response['choices'][0]['message']['content'].strip()
