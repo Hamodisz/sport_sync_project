@@ -2,15 +2,16 @@ import openai
 import os
 import json
 
-# إعداد المفتاح لـ OpenAI
-client = openai.OpenAI()
+# إعداد المفتاح مباشرة (نظام OpenAI القديم)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# استيراد الطبقات من مجلد analysis
+# استيراد الطبقات التحليلية من مجلد analysis
 from analysis.analysis_layers_1_40 import apply_layers_1_40
 from analysis.analysis_layers_41_80 import apply_layers_41_80
 from analysis.analysis_layers_81_100 import apply_layers_81_100
 from analysis.analysis_layers_101_141 import apply_layers_101_141
 
+# دمج جميع الطبقات التحليلية
 def apply_all_analysis_layers(user_answers):
     analysis_1_40 = apply_layers_1_40(user_answers)
     analysis_41_80 = apply_layers_41_80(user_answers)
@@ -24,6 +25,7 @@ def apply_all_analysis_layers(user_answers):
         "101-141": analysis_101_141,
     }
 
+# توليد التوصية الرياضية بناءً على التحليل
 def generate_sport_recommendation(user_answers, lang):
     all_layers = apply_all_analysis_layers(user_answers)
 
@@ -44,4 +46,4 @@ def generate_sport_recommendation(user_answers, lang):
         ]
     )
 
-    return response["choices"][0]["message"]["content"].strip()
+    return response['choices'][0]['message']['content'].strip()
