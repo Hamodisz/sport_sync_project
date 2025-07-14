@@ -3,6 +3,7 @@ import os
 import json
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
+from logic.user_analysis import save_user_analysis  # ✅ تم إضافته
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -12,6 +13,9 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
 
     # تنفيذ جميع طبقات التحليل
     all_analysis = apply_all_analysis_layers(answers)
+
+    # ✅ تخزين التحليل بعد توليده
+    save_user_analysis(user_id, all_analysis)
 
     # إعداد برومبت النظام
     if lang == "العربية":
