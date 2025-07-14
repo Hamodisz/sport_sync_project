@@ -10,7 +10,8 @@ from analysis.analysis_layers_101_141 import apply_layers_101_141
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis  # ✅ لتخزين التحليل
 
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# ✅ التعديل هنا فقط: استخدام واجهة GPT المتوافقة مع openai==1.30.1
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ✅ دالة دمج جميع طبقات التحليل
 def apply_all_analysis_layers(full_text):
@@ -62,8 +63,8 @@ Your mission: Understand the user's personality and guide them to a better sport
 Please suggest an alternative sport that fits the user better and explain why.
 """
 
-    # إرسال إلى GPT
-    response = client.chat.completions.create(
+    # ✅ التعديل هنا: استخدام الطريقة المباشرة `openai.ChatCompletion.create`
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": system_prompt.strip()},
@@ -71,4 +72,4 @@ Please suggest an alternative sport that fits the user better and explain why.
         ]
     )
 
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message["content"].strip()
