@@ -1,47 +1,26 @@
 import openai
 import os
-import json
 
-# إعداد المفتاح من environment variables
+# تعيين المفتاح مباشرة حسب طريقة openai الجديدة
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# استيراد الطبقات التحليلية
-from analysis.analysis_layers_1_40 import apply_layers_1_40
-from analysis.analysis_layers_41_80 import apply_layers_41_80
-from analysis.analysis_layers_81_100 import apply_layers_81_100
-from analysis.analysis_layers_101_141 import apply_layers_101_141
+def generate_sport_recommendation(answers, lang):
+    if lang == "العربية":
+        prompt = "هذه إجابات مستخدم على استبيان تحليل الشخصية والاهتمامات لاختيار الرياضة الأنسب له:\n\n"
+    else:
+        prompt = "These are a user's answers to a personality and interest questionnaire to find the best sport:\n\n"
 
-def apply_all_analysis_layers(user_answers):
-    analysis_1_40 = apply_layers_1_40(user_answers)
-    analysis_41_80 = apply_layers_41_80(user_answers)
-    analysis_81_100 = apply_layers_81_100(user_answers)
-    analysis_101_141 = apply_layers_101_141(user_answers)
+    for i, ans in enumerate(answers, 1):
+        prompt += f"{i}. {ans}\n"
 
-    return {
-        "1-40": analysis_1_40,
-        "41-80": analysis_41_80,
-        "81-100": analysis_81_100,
-        "101-141": analysis_101_141,
-    }
-
-def generate_sport_recommendation(user_answers, lang):
-    all_layers = apply_all_analysis_layers(user_answers)
-
-    prompt = f"""
-    هذه إجابات المستخدم على استبيان تحليل الشخصية الرياضية، مع التحليل الناتج من 141 طبقة نفسية وسلوكية:
-    
-    {json.dumps(all_layers, ensure_ascii=False, indent=2)}
-
-    استنادًا إلى هذا التحليل، رشّح له رياضة واحدة فقط، واشرح لماذا تناسبه تحديدًا.
-    اكتب الإجابة باللغة: {lang}
-    """
+    prompt += "\nBased on this, suggest the most suitable sport and justify why."
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "أنت مساعد خبير في علم النفس الرياضي."},
+            {"role": "system", "content": "You are a professional sports psychologist and AI coach."},
             {"role": "user", "content": prompt}
         ]
     )
 
-    return response['choices'][0]['message']['content'].strip()
+    return response.choices[0].message.content.strip()
