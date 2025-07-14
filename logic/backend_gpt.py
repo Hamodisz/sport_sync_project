@@ -1,20 +1,31 @@
 import openai
 import os
 import json
-from logic.backend_gpt import apply_all_analysis_layers
+
+from analysis.analysis_layers_1_40 import apply_layers_1_40
+from analysis.analysis_layers_41_80 import apply_layers_41_80
+from analysis.analysis_layers_81_100 import apply_layers_81_100
+from analysis.analysis_layers_101_141 import apply_layers_101_141
+
 from logic.chat_personality import get_chat_personality
-from logic.user_analysis import save_user_analysis  # ✅ تم إضافته
+from logic.user_analysis import save_user_analysis  # ✅ لتخزين التحليل
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ✅ دالة دمج جميع طبقات التحليل
+def apply_all_analysis_layers(full_text):
+    return (
+        apply_layers_1_40(full_text)
+        + apply_layers_41_80(full_text)
+        + apply_layers_81_100(full_text)
+        + apply_layers_101_141(full_text)
+    )
+
+# ✅ دالة الشات الديناميكي
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية"):
-    # تحميل الشخصية حسب user_id
     personality = get_chat_personality(user_id)
-
-    # تنفيذ جميع طبقات التحليل
-    all_analysis = apply_all_analysis_layers(answers)
-
-    # ✅ تخزين التحليل بعد توليده
+    full_text = ' '.join([answers.get(f'q{i+1}', '') for i in range(20)]) + ' ' + answers.get("custom_input", "")
+    all_analysis = apply_all_analysis_layers(full_text)
     save_user_analysis(user_id, all_analysis)
 
     # إعداد برومبت النظام
