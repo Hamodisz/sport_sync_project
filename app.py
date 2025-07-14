@@ -6,6 +6,7 @@ from datetime import datetime
 
 from logic.backend_gpt import generate_sport_recommendation
 from logic.dynamic_chat import start_dynamic_chat
+from logic.chat_personality import get_chat_personality
 
 # ---------------------
 # تحميل الأسئلة
@@ -16,88 +17,77 @@ def load_questions(lang):
         return json.load(f)
 
 # ---------------------
-# حفظ الجلسة
+# تخزين البيانات
 # ---------------------
-def store_user_session(user_id, answers, recommendation, lang):
-    row = {
+def save_user_data(user_id, lang, answers, recommendation):
+    data = {
         "user_id": user_id,
-        "timestamp": datetime.now(),
+        "timestamp": datetime.now().isoformat(),
         "language": lang,
-        "answers": json.dumps(answers, ensure_ascii=False),
+        "answers": answers,
         "recommendation": recommendation
     }
-    df = pd.DataFrame([row])
-    df.to_csv("data/user_data.csv", mode="a", index=False, header=False, encoding="utf-8")
+    df = pd.DataFrame([data])
+    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=False, encoding="utf-8")
 
 # ---------------------
 # واجهة المستخدم
 # ---------------------
-st.set_page_config(page_title="🔍 توصية رياضية ذكية", layout="centered")
-st.title("🎯 نظام التوصية الرياضية الذكية")
+st.set_page_config(page_title="توصية رياضية", layout="centered")
+st.title("🎯 توصيتك الرياضية الذكية")
 
 # اختيار اللغة
 lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
-questions = load_questions(lang)
 
-# تهيئة المتغيرات
+questions = load_questions(lang)
 answers = {}
-user_id = str(uuid.uuid4())[:8]
+user_id = str(uuid.uuid4())
 
 # عرض الأسئلة
-for q in questions:
-    question = q["question"]
-    options = q["options"]
-    multi = q.get("multi", False)
-    allow_free = q.get("free_text", False)
-
-    if multi:
-        selected = st.multiselect(question, options, key=question)
+for idx, q in enumerate(questions, 1):
+    q_key = f"q{idx}"
+    if q["type"] == "multiple":
+        selected = st.multiselect(q["question"], q["options"], key=q_key)
+        answers[q_key] = selected
     else:
-        selected = st.selectbox(question, options, key=question)
+        answer = st.radio(q["question"], q["options"], key=q_key)
+        answers[q_key] = answer
 
-    # خانة الإجابة الحرة
-    other = st.text_input(f"{question} (إجابة حرة)", key=question + "_free") if allow_free else ""
+    # إجابة حرة
+    if q.get("allow_custom"):
+        custom_input = st.text_input("إجابة أخرى (اختياري):", key=f"{q_key}_custom")
+        if custom_input:
+            answers[q_key].append(custom_input) if isinstance(answers[q_key], list) else answers.update({q_key: custom_input})
 
-    if other:
-        if isinstance(selected, list):
-            selected.append(other)
-        else:
-            selected = f"{selected}, {other}"
-
-    answers[question] = selected
+# خانة الإدخال المفتوحة في النهاية
+answers["custom_input"] = st.text_area("✏️ هل هناك شيء تحب إضافته؟", "")
 
 # ---------------------
-# توليد التوصية
+# التوصية
 # ---------------------
-if st.button("🔎 احصل على توصيتك"):
-    with st.spinner("جاري التحليل..."):
-        recommendation = generate_sport_recommendation(answers, lang, user_id)
-        store_user_session(user_id, answers, recommendation, lang)
-        st.success("✨ هذه هي الرياضة الأنسب لك:")
-        st.text_area("📋 انسخ التوصية:", recommendation, height=150)
+if st.button("🔍 احصل على توصيتي الرياضية"):
+    with st.spinner("جاري تحليل إجاباتك..."):
+        recommendation = generate_sport_recommendation(answers, lang)
+        st.session_state["recommendation"] = recommendation
+        st.session_state["answers"] = answers
+        st.session_state["user_id"] = user_id
+        st.success("✅ تم إنشاء التوصية!")
+        st.markdown(f"### 🎽 توصيتك:\n\n{recommendation}")
+        save_user_data(user_id, lang, answers, recommendation)
 
-        # رابط مشاركة
-        share_url = f"https://sport-sync-project.vercel.app/?user={user_id}"
-        st.markdown(f"🔗 رابط المشاركة: `{share_url}`")
+        # زر نسخ
+        st.code(recommendation, language="markdown")
+        st.button("📋 نسخ التوصية", on_click=lambda: st.toast("تم النسخ ✔️"))
+
+        # رابط عام (محاكى - ليس فعلي)
+        st.markdown(f"[🔗 رابط عام لمشاركة النتيجة](https://sport-sync.vercel.app/share/{user_id})")
 
         # دعوة صديق
-        if st.button("📨 دعوة صديق"):
-            st.markdown("انسخ الرابط وشاركه مع صديقك ليجرب: https://sport-sync-project.vercel.app")
+        st.markdown(f"[📨 دعوة صديق لتجربة الاختبار](https://sport-sync.vercel.app)")
 
-        # زر لم تعجبني التوصية
-        if st.button("🤔 لم أقتنع بالنتيجة"):
-            with st.spinner("جاري إعادة التحليل بناءً على إجاباتك وتحليل شخصيتك..."):
-                followup = start_dynamic_chat(answers, recommendation, user_id)
-                st.subheader("🔁 تحليل أعمق:")
-                st.write(followup)
-
-# ---------------------
-# عرض التحليل الجانبي
-# ---------------------
-try:
-    with open(f"data/{user_id}_analysis.json", "r", encoding="utf-8") as f:
-        user_analysis = json.load(f)
-        st.sidebar.markdown("🧠 تحليل شخصيتك:")
-        st.sidebar.write(user_analysis.get("summary", ""))
-except:
-    pass
+        # زر "لم أقتنع"
+        if st.button("❌ لم أقتنع بالنتيجة"):
+            with st.spinner("إعادة التحليل بعمق..."):
+                new_rec = start_dynamic_chat(answers, recommendation, user_id, lang)
+                st.markdown("### 🔁 توصية بديلة مخصصة:")
+                st.markdown(new_rec)
