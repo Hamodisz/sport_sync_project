@@ -1,12 +1,12 @@
-import openai
 import os
+from openai import OpenAI
 
-# تعيين المفتاح مباشرة حسب طريقة openai الجديدة
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# إنشاء العميل باستخدام المفتاح من البيئة
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_sport_recommendation(answers, lang):
     if lang == "العربية":
-        prompt = "هذه إجابات مستخدم على استبيان تحليل الشخصية والاهتمامات لاختيار الرياضة الأنسب له:\n\n"
+        prompt = "هذه إجابات مستخدم على استبيان تحليل الشخصية والاهتمامات لتحديد الرياضة المناسبة:\n\n"
     else:
         prompt = "These are a user's answers to a personality and interest questionnaire to find the best sport:\n\n"
 
@@ -15,7 +15,8 @@ def generate_sport_recommendation(answers, lang):
 
     prompt += "\nBased on this, suggest the most suitable sport and justify why."
 
-    response = openai.ChatCompletion.create(
+    # استدعاء الدردشة
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a professional sports psychologist and AI coach."},
