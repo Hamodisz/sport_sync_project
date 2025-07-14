@@ -1,25 +1,62 @@
-import os
 import openai
+import os
+import json
+from logic.backend_gpt import apply_all_analysis_layers
+from logic.chat_personality import get_chat_personality
 
-# إعداد المفتاح بالطريقة الصحيحة
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# إعداد عميل OpenAI
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# دالة المحادثة الديناميكية
-def start_dynamic_chat(user_message, lang="العربية"):
+# دالة المحادثة الذكية بعد زر "لم تعجبني التوصية"
+def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية"):
+    # تحميل الشخصية المناسبة للمستخدم
+    personality = get_chat_personality(user_id)
+
+    # تحليل إجابات المستخدم عبر الطبقات التحليلية
+    all_analysis = apply_all_analysis_layers(answers)
+
+    # إعداد رسالة النظام
     if lang == "العربية":
-        system_prompt = "أنت مساعد ذكي وداعم، تساعد المستخدم في فهم الرياضة المناسبة له بناءً على تحليله السابق."
+        system_prompt = f"""
+أنت {personality['name']}، مدرب ذكي يتبع فلسفة Sport Sync.
+نبرتك: {personality['tone']}
+أسلوبك: {personality['style']}
+فلسفتك: {personality['philosophy']}
+سمات المستخدم: {', '.join(personality['traits_summary'])}
+
+هدفك: فهم المستخدم وتحليل إجاباته وسماته النفسية.
+❌ لا تكرر نفس التوصية السابقة.
+✅ قدّم اقتراحًا أعمق يعكس هويته الفعلية.
+"""
     else:
-        system_prompt = "You are a smart and supportive assistant helping the user understand the best sport for them based on previous analysis."
+        system_prompt = f"""
+You are {personality['name']}, a smart coach powered by Sport Sync.
+Tone: {personality['tone']}
+Style: {personality['style']}
+Philosophy: {personality['philosophy']}
+User traits: {', '.join(personality['traits_summary'])}
 
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_message}
-    ]
+Your mission: Understand the user's personality and guide them to a better sport.
+❌ Never repeat the previous suggestion.
+✅ Provide a deeper, tailored recommendation that reflects the user's true identity.
+"""
 
-    response = openai.ChatCompletion.create(
+    # محتوى المستخدم (الإجابات + التوصية السابقة + التحليل)
+    user_prompt = f"""
+📌 Previous recommendation: {previous_recommendation}
+📋 User answers: {json.dumps(answers, ensure_ascii=False, indent=2)}
+🧠 Analysis layers 1–141: {json.dumps(all_analysis, ensure_ascii=False, indent=2)}
+
+Please suggest an alternative sport that fits the user better and explain why.
+"""
+
+    # إرسال المحادثة إلى GPT
+    response = client.chat.completions.create(
         model="gpt-4",
-        messages=messages,
-        temperature=0.7,
+        messages=[
+            {"role": "system", "content": system_prompt.strip()},
+            {"role": "user", "content": user_prompt.strip()}
+        ]
     )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content.strip()
