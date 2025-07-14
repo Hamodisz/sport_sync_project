@@ -2,10 +2,10 @@ import openai
 import os
 import json
 
-# إعداد العميل لـ openai
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# إعداد المفتاح لـ OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# استيراد الطبقات من مجلد analysis بدل logic
+# استيراد الطبقات من مجلد analysis
 from analysis.analysis_layers_1_40 import apply_layers_1_40
 from analysis.analysis_layers_41_80 import apply_layers_41_80
 from analysis.analysis_layers_81_100 import apply_layers_81_100
@@ -29,14 +29,14 @@ def generate_sport_recommendation(user_answers, lang):
 
     prompt = f"""
     هذه إجابات المستخدم على استبيان تحليل الشخصية الرياضية، مع التحليل الناتج من 141 طبقة نفسية وسلوكية:
-    
+
     {json.dumps(all_layers, ensure_ascii=False, indent=2)}
 
     استنادًا إلى هذا التحليل، رشّح له رياضة واحدة فقط، واشرح لماذا تناسبه تحديدًا.
     اكتب الإجابة باللغة: {lang}
     """
 
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "أنت مساعد خبير في علم النفس الرياضي."},
@@ -44,4 +44,4 @@ def generate_sport_recommendation(user_answers, lang):
         ]
     )
 
-    return response.choices[0].message.content.strip()
+    return response["choices"][0]["message"]["content"].strip()
