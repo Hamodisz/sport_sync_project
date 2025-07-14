@@ -6,7 +6,6 @@ from datetime import datetime
 
 from logic.backend_gpt import generate_sport_recommendation
 from logic.dynamic_chat import start_dynamic_chat
-from logic.chat_personality import chat_identity
 
 # ---------------------
 # تحميل الأسئلة
@@ -75,19 +74,15 @@ if st.button("🔎 احصل على توصيتك"):
         recommendation = generate_sport_recommendation(answers, lang, user_id)
         store_user_session(user_id, answers, recommendation, lang)
         st.success("✨ هذه هي الرياضة الأنسب لك:")
-        st.write(recommendation)
-
-        # زر نسخ
-        st.code(recommendation, language=None)
-        st.button("📋 نسخ التوصية", on_click=st.toast, args=("✅ تم نسخ التوصية",))
+        st.text_area("📋 انسخ التوصية:", recommendation, height=150)
 
         # رابط مشاركة
-        share_url = f"https://your-app-url.com/?user={user_id}"
+        share_url = f"https://sport-sync-project.vercel.app/?user={user_id}"
         st.markdown(f"🔗 رابط المشاركة: `{share_url}`")
 
         # دعوة صديق
         if st.button("📨 دعوة صديق"):
-            st.markdown("انسخ الرابط وشاركه مع صديقك ليجرب: https://your-app-url.com")
+            st.markdown("انسخ الرابط وشاركه مع صديقك ليجرب: https://sport-sync-project.vercel.app")
 
         # زر لم تعجبني التوصية
         if st.button("🤔 لم أقتنع بالنتيجة"):
