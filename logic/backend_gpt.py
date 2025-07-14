@@ -3,7 +3,7 @@ import os
 import json
 
 # إعداد المفتاح لـ OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI()
 
 # استيراد الطبقات من مجلد analysis
 from analysis.analysis_layers_1_40 import apply_layers_1_40
