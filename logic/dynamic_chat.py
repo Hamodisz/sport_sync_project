@@ -2,7 +2,7 @@ import openai
 import os
 import json
 from logic.chat_personality import get_chat_personality
-from backend_gpt import apply_all_analysis_layers  # ربط مباشر بالتحليل
+from logic.backend_gpt import apply_all_analysis_layers  # ✅ تم التعديل هنا
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
