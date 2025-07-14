@@ -1,43 +1,32 @@
+import random
 import json
 import os
 
-# تحميل تحليل الشخصية من ملف user_id_analysis.json
-def load_user_analysis(user_id):
-    path = f"data/{user_id}_analysis.json"
-    if not os.path.exists(path):
-        return []
-
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-        return data.get("traits", [])
-
-# توليد هوية الشات بناءً على التحليل
 def get_chat_personality(user_id):
-    traits = load_user_analysis(user_id)
+    # تحميل تحليل السمات من ملف التحليل المحفوظ
+    file_path = f"data/{user_id}_analysis.json"
+    if not os.path.exists(file_path):
+        return default_personality()
 
-    personality = {
-        "name": "Sport Sync",
-        "tone": "تحفيزي وعاكس لشخصية المستخدم",
-        "style": "عميق وتحليلي ولكن إنساني",
-        "philosophy": "الرياضة ليست مجرد نشاط، بل انعكاس لهويتك العميقة.",
-        "traits_summary": traits,
+    with open(file_path, "r", encoding="utf-8") as f:
+        traits = json.load(f)
+
+    # توليد ملخص السمات لاستخدامه في البرومبت
+    traits_summary = [trait for trait in traits]
+
+    return {
+        "name": random.choice(["نورا", "مالك", "ليلى", "آدم", "سارة"]),
+        "tone": random.choice(["هادئة ومتفهمة", "تحفيزية ومليئة بالطاقة", "عقلانية وواقعية"]),
+        "style": random.choice(["أسلوب عميق فلسفي", "أسلوب مباشر وواضح", "أسلوب قصصي وتخيّلي"]),
+        "philosophy": "الرياضة ليست هدفًا، بل وسيلة لاكتشاف الذات والتعبير عنها.",
+        "traits_summary": traits_summary[:10]  # نختصر لأفضل 10 سمات لتحسين البرومبت
     }
 
-    if "يحب التحدي" in traits:
-        personality["tone"] = "تنافسي ومُلهم"
-    if "يميل للهدوء" in traits:
-        personality["tone"] = "هادئ وواعٍ"
-    if "يميل للمخاطرة" in traits:
-        personality["tone"] = "جريء ومتحفز"
-    if "مفكر" in traits:
-        personality["style"] = "تحليلي وعقلي"
-    if "مبدع" in traits:
-        personality["style"] = "إبداعي وملهم"
-
-    return personality
-
-# النسخة الثابتة (احتياطية في حال لم يوجد تحليل)
-chat_identity = {
-    "name": "Sport Sync",
-    "philosophy": "كل إنسان يملك رياضته الفريدة. مهمتي مساعدتك على اكتشافها.",
-}
+def default_personality():
+    return {
+        "name": "آدم",
+        "tone": "واقعية وتحليلية",
+        "style": "أسلوب مباشر وواضح",
+        "philosophy": "نساعد كل شخص يكتشف رياضته الخاصة عبر تحليل نواياه العميقة.",
+        "traits_summary": ["لا يوجد تحليل سابق"]
+    }
