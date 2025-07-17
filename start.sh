@@ -1,2 +1,7 @@
 #!/bin/bash
-streamlit run app.py --server.port=10000 --server.enableCORS=false
+
+pip install --upgrade pip
+pip install --force-reinstall openai==1.3.0
+pip install -r requirements.txt
+
+streamlit run app.py
