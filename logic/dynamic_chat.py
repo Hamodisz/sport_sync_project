@@ -3,20 +3,35 @@ import os
 import json
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
+from logic.user_analysis import save_user_analysis
 
 # إعداد عميل OpenAI
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # دالة المحادثة الذكية بعد زر "لم تعجبني التوصية"
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية", ratings=None):
-    personality = get_chat_personality(user_id)
-    all_analysis = apply_all_analysis_layers(answers)
+    # تأكيد اللغة
+    if lang not in ["العربية", "English"]:
+        lang = "English"
+
+    # تحويل الإجابات إلى نص للتحليل
+    full_text = ' '.join(
+        ' / '.join(v) if isinstance(v, list) else str(v)
+        for v in answers.values()
+    )
+
+    # استخراج التحليل الكامل
+    all_analysis = apply_all_analysis_layers(full_text)
+    save_user_analysis(user_id, all_analysis)
 
     # تقييم التوصيات السابقة
     rating_text = ""
     if ratings:
         rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
         rating_text = "\n".join(rating_lines)
+
+    # توليد شخصية الشات
+    personality = get_chat_personality(user_id)
 
     # رسالة النظام (System Prompt)
     if lang == "العربية":
@@ -76,12 +91,14 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
     """
 
     # إرسال الطلب إلى GPT
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt.strip()},
-            {"role": "user", "content": user_prompt.strip()}
-        ]
-    )
-
-    return response.choices[0].message.content.strip()
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_prompt.strip()},
+                {"role": "user", "content": user_prompt.strip()}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"❌ حدث خطأ أثناء الاتصال بـ GPT: {str(e)}"
