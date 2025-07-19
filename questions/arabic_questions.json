@@ -1,159 +1,159 @@
 [
   {
-    "question": "ما الذي يجذبك عادةً في أي نشاط؟",
-    "options": ["التحدي", "الاسترخاء", "التفاعل مع الآخرين", "السرعة والإثارة", "التركيز الذهني"],
+    "question": "What usually attracts you to an activity?",
+    "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "أي نوع من البيئات تفضل أن تكون فيها أثناء التمرين أو النشاط؟",
-    "options": ["مكان مفتوح في الطبيعة", "مكان مغلق ومنظم", "أماكن مزدحمة بالحركة", "أماكن هادئة وفارغة"],
+    "question": "What type of environment do you prefer during training or activities?",
+    "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تصف أسلوبك في اتخاذ القرار؟",
-    "options": ["سريع ومندفع", "تحليلي ومدروس", "أتبعه بشعوري", "أستشير غيري كثيرًا"],
+    "question": "How would you describe your decision-making style?",
+    "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تتعامل مع الألم أو التعب؟",
-    "options": ["أتجاهله وأكمل", "أحلله وأعدل الخطة", "أتوقف فورًا", "أقاومه حتى النهاية"],
+    "question": "How do you deal with pain or fatigue?",
+    "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "هل تفضّل إتقان شيء واحد بعمق أم تجربة أشياء متنوعة؟",
-    "options": ["إتقان عميق", "تنوع وتجارب", "مزيج من الاثنين"],
+    "question": "Do you prefer mastering one thing deeply or exploring many?",
+    "options": ["Deep mastery", "Diversity and experimentation", "A mix of both"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تشعر عندما تحقق إنجازًا؟",
-    "options": ["فخور جدًا", "أبحث عن تحدٍ جديد", "أحب مشاركته مع الآخرين", "أشعر بالسلام الداخلي"],
+    "question": "How do you feel when you achieve something?",
+    "options": ["Very proud", "Look for a new challenge", "Love sharing it", "Feel inner peace"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "هل تستمتع بالأنشطة الفردية أم الجماعية؟",
-    "options": ["فردية بالكامل", "جماعية بالكامل", "حسب المزاج", "تعاونية دون منافسة"],
+    "question": "Do you enjoy individual or group activities more?",
+    "options": ["Fully individual", "Fully group-based", "Depends on my mood", "Collaborative without competition"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "ما الذي يشعرك بالحماس لبداية يوم جديد؟",
-    "options": ["مغامرة جديدة", "فرصة للتطور", "التواصل مع الآخرين", "وقت خاص لي"],
+    "question": "What excites you about starting a new day?",
+    "options": ["New adventure", "Chance to grow", "Connecting with people", "Time for myself"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تتصرف عند مواجهة صعوبة في التعلم؟",
-    "options": ["أستمر بالمحاولة", "أبحث عن طرق بديلة", "أطلب المساعدة", "أحيانًا أستسلم"],
+    "question": "How do you respond to difficulty when learning something?",
+    "options": ["Keep trying", "Find alternative ways", "Ask for help", "Sometimes give up"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "ما الذي يجذبك عند مشاهدة الرياضة؟",
-    "options": ["السرعة", "الذكاء والتكتيك", "القوة البدنية", "المرونة والإبداع"],
+    "question": "What grabs your attention when watching sports?",
+    "options": ["Speed", "Tactics and intelligence", "Physical strength", "Flexibility and creativity"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "لو أتيحت لك تجربة رياضة جديدة، ما الذي يجذبك فيها؟",
-    "options": ["المخاطرة والإثارة", "الغرابة والتميّز", "الوضوح والتنظيم", "سهولة البدء"],
+    "question": "If you had the chance to try a new sport, what would attract you most?",
+    "options": ["Risk and excitement", "Mystery and uniqueness", "Rules and structure", "Ease of starting"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تشعر حيال الخسارة؟",
-    "options": ["أتعلم منها", "أشعر بالإحباط", "أتحمس أكثر", "أحاول تجنبها تمامًا"],
+    "question": "How do you feel about losing?",
+    "options": ["Learn from it", "Feel disappointed", "Get more motivated", "Avoid it strongly"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف تصف تركيزك أثناء المهام؟",
-    "options": ["مركّز جدًا", "أتشتت بسهولة", "أدخل في حالة تدفق", "يعتمد على نوع المهمة"],
+    "question": "How would you describe your focus during tasks?",
+    "options": ["Highly focused", "Easily distracted", "Enter a flow state", "Depends on the task"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "هل تحب التكرار والممارسة المستمرة؟",
-    "options": ["بالتأكيد", "أحيانًا", "أفضل التعلم بالتجربة", "أشعر بالملل من التكرار"],
+    "question": "Do you enjoy repetition and continuous practice?",
+    "options": ["Absolutely", "Sometimes", "Prefer trial and error", "Get bored with repetition"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "ما هو شعورك تجاه المنافسة؟",
-    "options": ["أعشقها", "أتقبلها عند وجودها", "أفضل تجنبها", "أركز على التطوير الذاتي"],
+    "question": "How do you feel about competition?",
+    "options": ["Love it", "Accept it when it exists", "Prefer avoiding it", "Focus on self-growth"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "ما نوع الجهد الذي يناسبك أكثر؟",
-    "options": ["جهد بدني قوي", "تركيز ذهني دقيق", "متنوع ومرن", "إبداعي وتخيلي"],
+    "question": "What kind of effort suits you best?",
+    "options": ["Intense physical", "Precise mental", "Flexible and varied", "Creative and imaginative"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "هل ترى نفسك خياليًا أم واقعيًا؟",
-    "options": ["خيالي جدًا", "واقعي جدًا", "بين الاثنين", "يعتمد على الموقف"],
+    "question": "Do you see yourself as more imaginative or realistic?",
+    "options": ["Very imaginative", "Very realistic", "In between", "Depends on the situation"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "لو كنت تتدرب لوحدك كل يوم، كيف ستشعر؟",
-    "options": ["متحمس جدًا", "أحتاج خطة واضحة", "أمل بسرعة", "أفضل وجود مدرب أو صديق"],
+    "question": "If you had to train alone daily, how would you feel?",
+    "options": ["Very excited", "Need a clear plan", "Get bored quickly", "Prefer a coach or friend"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "ما الذي تبحث عنه من خلال الرياضة؟",
-    "options": ["التحدي والإنجاز", "التوازن الذهني", "المرح والمتعة", "التعبير عن الذات والهوية"],
+    "question": "What do you seek most through sports?",
+    "options": ["Challenge and achievement", "Mental balance", "Fun and enjoyment", "Self-expression and identity"],
     "multi": true,
     "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "كيف ترى جسدك حاليًا؟",
-    "options": ["قوي ويحتاج تحسين", "مرن ويحتاج لياقة", "ضعيف ويحتاج تطوير", "لا أفكر فيه كثيرًا"],
+    "question": "How do you currently see your body?",
+    "options": ["Strong but needs improvement", "Flexible but needs fitness", "Weak and needs development", "Don’t think much about it"],
     "multi": true,
     "free": true,
     "type": "multiple",
