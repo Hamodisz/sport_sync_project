@@ -1,122 +1,201 @@
 [
   {
-    "question": "What usually attracts you in any activity?",
-    "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
-    "multi": false,
-    "free": true
+    "question": "ما الذي يجذبك عادةً في أي نشاط؟",
+    "options": ["التحدي", "الاسترخاء", "التفاعل مع الآخرين", "السرعة والإثارة", "التركيز الذهني"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "What type of environment do you prefer when being active?",
-    "options": ["Open nature", "Organized indoor space", "Crowded and energetic", "Calm and empty"],
-    "multi": false,
-    "free": true
+    "question": "أي نوع من البيئات تفضل أن تكون فيها أثناء التمرين أو النشاط؟",
+    "options": ["مكان مفتوح في الطبيعة", "مكان مغلق ومنظم", "أماكن مزدحمة بالحركة", "أماكن هادئة وفارغة"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "كيف تصف أسلوبك في اتخاذ القرار؟",
+    "options": ["سريع ومندفع", "تحليلي ومدروس", "أتبعه بشعوري", "أستشير غيري كثيرًا"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "كيف تتعامل مع الألم أو التعب؟",
+    "options": ["أتجاهله وأكمل", "أحلله وأعدل الخطة", "أتوقف فورًا", "أقاومه حتى النهاية"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "هل تحب أن تتقن شيئًا واحدًا بعمق أم تتعلم أشياء
+
+تفضل هذه النسخة **الكاملة والمحدثة** من ملف `english_questions.json`، متوافقة مع نفس الهيكل والتحسينات التي طبقتها على النسخة العربية (دعم `allow_custom: true` في كل سؤال):
+
+```json
+[
+  {
+    "question": "What usually attracts you to an activity?",
+    "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "What type of environment do you prefer during training or activities?",
+    "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "How would you describe your decision-making style?",
-    "options": ["Fast and impulsive", "Analytical and thoughtful", "Based on intuition", "Often consult others"],
-    "multi": false,
-    "free": true
+    "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "How do you deal with pain or fatigue?",
-    "options": ["Ignore and keep going", "Analyze and adjust", "Stop immediately", "Push through no matter what"],
-    "multi": false,
-    "free": true
+    "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Do you prefer mastering one thing deeply or learning many things?",
-    "options": ["Deep mastery", "Variety and exploration", "A balance of both"],
-    "multi": false,
-    "free": true
+    "question": "Do you prefer mastering one thing deeply or exploring many?",
+    "options": ["Deep mastery", "Diversity and experimentation", "A mix of both"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "How do you feel when you win or achieve something?",
-    "options": ["Proud", "Looking for next challenge", "Love to share it", "Feel inner peace"],
-    "multi": false,
-    "free": true
+    "question": "How do you feel when you win or succeed?",
+    "options": ["Proud", "Seek a new challenge", "Love to share it", "Feel inner peace"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Do you enjoy solo or group movement more?",
-    "options": ["Completely solo", "Completely group-based", "Depends on my mood", "Prefer cooperative over competitive"],
-    "multi": false,
-    "free": true
+    "question": "Do you enjoy individual or group activities more?",
+    "options": ["Fully individual", "Fully group-based", "Depends on my mood", "Collaborative without competition"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "What excites you most to start a new day?",
-    "options": ["A new adventure", "Opportunity to grow", "Connecting with people", "Private time for myself"],
-    "multi": false,
-    "free": true
+    "question": "What excites you most about a new day?",
+    "options": ["New adventure", "Chance to grow", "Connecting with people", "Time for myself"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "When you struggle to learn something, what do you do?",
-    "options": ["Try harder", "Seek alternative methods", "Ask for help", "Sometimes give up"],
-    "multi": false,
-    "free": true
+    "question": "What do you do when facing difficulty in learning something?",
+    "options": ["Keep trying", "Find alternative ways", "Ask for help", "Sometimes give up"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "What grabs your attention when watching a sport?",
-    "options": ["Speed", "Strategy and intelligence", "Physical strength", "Creativity and flexibility"],
-    "multi": false,
-    "free": true
+    "question": "What grabs your attention when watching sports?",
+    "options": ["Speed", "Tactics and intelligence", "Physical strength", "Flexibility and creativity"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "If offered a chance to try a new sport, what attracts you?",
-    "options": ["Risk and thrill", "Mystery and uniqueness", "Rules and structure", "Ease of starting"],
-    "multi": false,
-    "free": true
+    "question": "If you had the chance to try a new sport, what would attract you?",
+    "options": ["Risk and excitement", "Mystery and uniqueness", "Rules and structure", "Ease of starting"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "How do you feel about losing?",
-    "options": ["Learn from it", "Get discouraged", "More motivated to succeed", "Avoid it strongly"],
-    "multi": false,
-    "free": true
+    "options": ["Learn from it", "Feel disappointed", "Get more motivated", "Avoid it strongly"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "How focused are you while doing tasks?",
-    "options": ["Extremely focused", "Easily distracted", "Enter flow state", "Depends on the task"],
-    "multi": false,
-    "free": true
+    "question": "How do you describe your focus level during tasks?",
+    "options": ["Highly focused", "Easily distracted", "Enter a flow state", "Depends on the task"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Do you enjoy repetition and regular training?",
-    "options": ["Love it", "Sometimes", "Prefer trial-based learning", "Get bored with repetition"],
-    "multi": false,
-    "free": true
+    "question": "Do you enjoy repetition and continuous practice?",
+    "options": ["Absolutely", "Sometimes", "Prefer learning by trial", "Get bored with repetition"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "How do you feel about competition?",
-    "options": ["I live for it", "Accept it if needed", "Prefer avoiding it", "Focus more on self-growth"],
-    "multi": false,
-    "free": true
+    "options": ["Love it and live for it", "Accept it when it exists", "Prefer avoiding it", "Focus on personal growth"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "What type of effort suits you most?",
     "options": ["Intense physical", "Precise mental", "Flexible and varied", "Creative and imaginative"],
-    "multi": false,
-    "free": true
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Are you more imaginative or realistic?",
-    "options": ["Highly imaginative", "Highly realistic", "Balanced between both", "Depends on the situation"],
-    "multi": false,
-    "free": true
+    "question": "Do you see yourself more imaginative or realistic?",
+    "options": ["Very imaginative", "Very realistic", "Somewhere in between", "Depends on the situation"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "If you had to train alone daily, how would you handle it?",
-    "options": ["Very excited", "Need a clear plan", "Get bored quickly", "Prefer having coach or friend"],
-    "multi": false,
-    "free": true
+    "question": "If you had to train alone daily, how would you feel?",
+    "options": ["Very excited", "Need a clear plan", "Get bored quickly", "Prefer a coach or friend"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
     "question": "What do you seek most through sports?",
-    "options": ["Challenge and achievement", "Inner balance", "Fun and joy", "Identity and self-expression"],
-    "multi": false,
-    "free": true
+    "options": ["Challenge and achievement", "Mental balance", "Fun and joy", "Identity and self-expression"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "How do you view your body currently?",
-    "options": ["Strong but needs refining", "Flexible but needs stamina", "Weak and needs development", "Don't think about it much"],
-    "multi": false,
-    "free": true
+    "question": "How do you currently view your body?",
+    "options": ["Strong but needs refinement", "Flexible but needs fitness", "Weak and needs development", "Don’t think about it much"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   }
 ]
