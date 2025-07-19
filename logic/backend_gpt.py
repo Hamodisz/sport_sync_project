@@ -1,75 +1,87 @@
-from openai import OpenAI
-import os
-import json
+def generate_sport_recommendation(answers, lang="العربية"):
+    # تأمين النص الكامل من الإجابات
+    parts = []
+    for i in range(20):
+        val = answers.get(f'q{i+1}', '')
+        if isinstance(val, list):
+            parts.append(' / '.join(val))
+        else:
+            parts.append(str(val))
+    full_text = ' '.join(parts) + ' ' + answers.get("custom_input", "")
 
-from analysis.analysis_layers_1_40 import apply_layers_1_40
-from analysis.analysis_layers_41_80 import apply_layers_41_80
-from analysis.analysis_layers_81_100 import apply_layers_81_100
-from analysis.analysis_layers_101_141 import apply_layers_101_141
+    # استخراج التحليل
+    analysis = apply_all_analysis_layers(full_text)
+    user_id = answers.get("user_id", "unknown")
 
-from logic.chat_personality import get_chat_personality
-from logic.user_analysis import save_user_analysis  # ✅ لتخزين التحليل
+    # حفظ التحليل
+    save_user_analysis(user_id, analysis)
 
-# ✅ تهيئة العميل مع openai 1.30.1 بدون مشاكل
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# ✅ دالة دمج جميع طبقات التحليل
-def apply_all_analysis_layers(full_text):
-    return (
-        apply_layers_1_40(full_text)
-        + apply_layers_41_80(full_text)
-        + apply_layers_81_100(full_text)
-        + apply_layers_101_141(full_text)
-    )
-
-# ✅ دالة الشات الديناميكي
-def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية"):
-    personality = get_chat_personality(user_id)
-    full_text = ' '.join([answers.get(f'q{i+1}', '') for i in range(20)]) + ' ' + answers.get("custom_input", "")
-    all_analysis = apply_all_analysis_layers(full_text)
-    save_user_analysis(user_id, all_analysis)
-
-    # إعداد برومبت النظام
+    # تجهيز البرومبت
     if lang == "العربية":
-        system_prompt = f"""
-أنت {personality['name']}، مدرب ذكي يتبع فلسفة Sport Sync.
-نبرتك: {personality['tone']}
-أسلوبك: {personality['style']}
-فلسفتك: {personality['philosophy']}
-سمات المستخدم: {', '.join(personality['traits_summary'])}
+        prompt = f"""
+أنت نظام ذكي لتحليل الشخصية الرياضية. المستخدم أجاب على استبيان طويل، وهذه السمات التي استنتجتها من تحليله:
 
-هدفك: فهم المستخدم وتحليل إجاباته وسماته النفسية.
-❌ لا تكرر نفس التوصية السابقة.
-✅ قدّم اقتراحًا أعمق يعكس هويته الفعلية.
-"""
+🔍 السمات النفسية والسلوكية:
+{json.dumps(analysis, ensure_ascii=False, indent=2)}
+
+🎯 مهمتك:
+اقترح 3 رياضات مختلفة تمامًا لهذا المستخدم، بأسلوب إنساني عاطفي يحاكي مشاعره ويعكس شخصيته بصدق. 
+ابدأ كل توصية بسبب مقنع جدًا مبني على واحدة من سماته، ثم اربط الرياضة المختارة بتلك السمة بذكاء.
+إذا كانت الرياضة نادرة أو خطيرة أو صعبة الوصول، اقترح نسخة VR منها كبديل واقعي وذكي.
+فكّر بشكل إبداعي ولا تلتزم بالرياضات التقليدية فقط. لا تُكرر رياضات متشابهة. اجعل كل توصية مميزة ومستقلة تمامًا.
+
+✅ في نهاية الرسالة، أضف هذه الجملة:
+"وإن شعرت أن هذه الرياضات لا تعبر عنك تمامًا، اضغط على زر (لم تعجبني التوصية) لأتعرف عليك أكثر، وأبحث لك عن ما يناسبك فعلًا."
+
+📌 أجب فقط بهذا الشكل، دون أي مقدمات إضافية:
+1. اسم الرياضة – السبب
+2. ...
+3. ...
+        """
     else:
-        system_prompt = f"""
-You are {personality['name']}, a smart coach powered by Sport Sync.
-Tone: {personality['tone']}
-Style: {personality['style']}
-Philosophy: {personality['philosophy']}
-User traits: {', '.join(personality['traits_summary'])}
+        prompt = f"""
+You are an intelligent sport personality analyzer. The user completed a deep survey. These are the traits you extracted:
 
-Your mission: Understand the user's personality and guide them to a better sport.
-❌ Never repeat the previous suggestion.
-✅ Provide a deeper, tailored recommendation that reflects the user's true identity.
-"""
+🧠 Traits:
+{json.dumps(analysis, indent=2)}
 
-    user_prompt = f"""
-📌 Previous recommendation: {previous_recommendation}
-📋 User answers: {json.dumps(answers, ensure_ascii=False, indent=2)}
-🧠 Analysis layers 1–141: {json.dumps(all_analysis, ensure_ascii=False, indent=2)}
+🎯 Your task:
+Suggest 3 completely different sports based on the user's personality.
+Each recommendation must:
+- Start with a deeply personal reason based on the user's traits.
+- Clearly explain why this sport is a great fit.
+- If the sport is rare, dangerous, or hard to access, suggest a VR alternative.
+Be creative and emotionally expressive. Don’t just give popular or cliché sports. Each recommendation should feel custom-made.
 
-Please suggest an alternative sport that fits the user better and explain why.
-"""
+✅ End with this:
+"If you feel these don’t truly reflect who you are, click 'Not satisfied' and I’ll explore more to find what truly fits you."
 
-    # إرسال إلى GPT
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt.strip()},
-            {"role": "user", "content": user_prompt.strip()}
-        ]
-    )
+📌 Format your answer like this:
+1. Sport – explanation
+2. ...
+3. ...
+        """
 
-    return response.choices[0].message.content.strip()
+    # إرسال الطلب والتعامل مع الخطأ
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt.strip()}],
+            temperature=0.85,
+        )
+        content = response.choices[0].message.content.strip()
+    except Exception as e:
+        print("❌ خطأ أثناء الاتصال بـ OpenAI:", str(e))
+        return ["عذرًا، حدث خطأ أثناء توليد التوصية. يرجى المحاولة لاحقًا."]
+
+    # تقسيم التوصيات
+    recommendations = []
+    for line in content.split("\n"):
+        if line.strip().startswith(("1.", "2.", "3.")):
+            recommendations.append(line.strip())
+
+    # Fallback
+    if len(recommendations) < 3:
+        recommendations = [content]
+
+    return recommendations
