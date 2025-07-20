@@ -1,72 +1,57 @@
-def generate_sport_recommendation(answers, lang="العربية"):
-    # تأمين النص الكامل من الإجابات
+import os
+import json
+from openai import OpenAI
+
+from logic.analysis_layers.analysis_layers_1_40 import apply_layers_1_40
+from logic.analysis_layers.analysis_layers_41_80 import apply_layers_41_80
+from logic.analysis_layers.analysis_layers_81_100 import apply_layers_81_100
+from logic.analysis_layers.analysis_layers_101_141 import apply_layers_101_141
+from logic.user_analysis import save_user_analysis
+from logic.prompt_engine import build_main_prompt  # تأكد أنك أنشأت هذا الملف
+
+# إعداد عميل OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# طبقات التحليل الكاملة
+def apply_all_analysis_layers(text):
+    return {
+        "traits_1_40": apply_layers_1_40(text),
+        "traits_41_80": apply_layers_41_80(text),
+        "traits_81_100": apply_layers_81_100(text),
+        "traits_101_141": apply_layers_101_141(text),
+    }
+
+# تنسيق الإجابات لاستخدامها كنص موحّد
+def format_answers_for_prompt(answers):
     parts = []
     for i in range(20):
         val = answers.get(f'q{i+1}', '')
         if isinstance(val, list):
-            parts.append(' / '.join(val))
+            parts.append(f"Q{i+1}: {' / '.join(val)}")
         else:
-            parts.append(str(val))
-    full_text = ' '.join(parts) + ' ' + answers.get("custom_input", "")
+            parts.append(f"Q{i+1}: {str(val)}")
+    extra = answers.get("custom_input", "")
+    if extra:
+        parts.append(f"Extra: {extra}")
+    return '\n'.join(parts)
 
-    # استخراج التحليل
-    analysis = apply_all_analysis_layers(full_text)
+# الوظيفة الأساسية: توليد توصية ذكية
+def generate_sport_recommendation(answers, lang="العربية"):
     user_id = answers.get("user_id", "unknown")
+    full_text = format_answers_for_prompt(answers)
 
-    # حفظ التحليل
+    # تحليل الإجابات
+    analysis = apply_all_analysis_layers(full_text)
     save_user_analysis(user_id, analysis)
 
-    # تجهيز البرومبت
-    if lang == "العربية":
-        prompt = f"""
-أنت نظام ذكي لتحليل الشخصية الرياضية. المستخدم أجاب على استبيان طويل، وهذه السمات التي استنتجتها من تحليله:
+    # بناء البرومبت النهائي للتوصية
+    prompt = build_main_prompt(analysis, lang)
 
-🔍 السمات النفسية والسلوكية:
-{json.dumps(analysis, ensure_ascii=False, indent=2)}
-
-🎯 مهمتك:
-اقترح 3 رياضات مختلفة تمامًا لهذا المستخدم، بأسلوب إنساني عاطفي يحاكي مشاعره ويعكس شخصيته بصدق. 
-ابدأ كل توصية بسبب مقنع جدًا مبني على واحدة من سماته، ثم اربط الرياضة المختارة بتلك السمة بذكاء.
-إذا كانت الرياضة نادرة أو خطيرة أو صعبة الوصول، اقترح نسخة VR منها كبديل واقعي وذكي.
-فكّر بشكل إبداعي ولا تلتزم بالرياضات التقليدية فقط. لا تُكرر رياضات متشابهة. اجعل كل توصية مميزة ومستقلة تمامًا.
-
-✅ في نهاية الرسالة، أضف هذه الجملة:
-"وإن شعرت أن هذه الرياضات لا تعبر عنك تمامًا، اضغط على زر (لم تعجبني التوصية) لأتعرف عليك أكثر، وأبحث لك عن ما يناسبك فعلًا."
-
-📌 أجب فقط بهذا الشكل، دون أي مقدمات إضافية:
-1. اسم الرياضة – السبب
-2. ...
-3. ...
-        """
-    else:
-        prompt = f"""
-You are an intelligent sport personality analyzer. The user completed a deep survey. These are the traits you extracted:
-
-🧠 Traits:
-{json.dumps(analysis, indent=2)}
-
-🎯 Your task:
-Suggest 3 completely different sports based on the user's personality.
-Each recommendation must:
-- Start with a deeply personal reason based on the user's traits.
-- Clearly explain why this sport is a great fit.
-- If the sport is rare, dangerous, or hard to access, suggest a VR alternative.
-Be creative and emotionally expressive. Don’t just give popular or cliché sports. Each recommendation should feel custom-made.
-
-✅ End with this:
-"If you feel these don’t truly reflect who you are, click 'Not satisfied' and I’ll explore more to find what truly fits you."
-
-📌 Format your answer like this:
-1. Sport – explanation
-2. ...
-3. ...
-        """
-
-    # إرسال الطلب والتعامل مع الخطأ
+    # إرسال الطلب إلى GPT
     try:
         response = client.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt.strip()}],
+            messages=[{"role": "user", "content": prompt}],
             temperature=0.85,
         )
         content = response.choices[0].message.content.strip()
@@ -74,13 +59,12 @@ Be creative and emotionally expressive. Don’t just give popular or cliché spo
         print("❌ خطأ أثناء الاتصال بـ OpenAI:", str(e))
         return ["عذرًا، حدث خطأ أثناء توليد التوصية. يرجى المحاولة لاحقًا."]
 
-    # تقسيم التوصيات
+    # استخراج التوصيات 1-2-3
     recommendations = []
     for line in content.split("\n"):
         if line.strip().startswith(("1.", "2.", "3.")):
             recommendations.append(line.strip())
 
-    # Fallback
     if len(recommendations) < 3:
         recommendations = [content]
 
