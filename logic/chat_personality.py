@@ -1,32 +1,32 @@
-import random
-import json
 import os
+import csv
+import json
+from datetime import datetime
 
-def get_chat_personality(user_id):
-    # تحميل تحليل السمات من ملف التحليل المحفوظ
-    file_path = f"data/{user_id}_analysis.json"
-    if not os.path.exists(file_path):
-        return default_personality()
+from analysis.analysis_layers_1_40 import apply_layers_1_40
+from analysis.analysis_layers_41_80 import apply_layers_41_80
+from analysis.analysis_layers_81_100 import apply_layers_81_100
+from analysis.analysis_layers_101_141 import apply_layers_101_141
+from logic.chat_personality import BASE_PERSONALITY
 
-    with open(file_path, "r", encoding="utf-8") as f:
-        traits = json.load(f)
+CSV_PATH = "data/user_sessions.csv"
+OUTPUT_PATH = "data/weekly_analysis.json"
 
-    # توليد ملخص السمات لاستخدامه في البرومبت
-    traits_summary = [trait for trait in traits]
+def read_user_sessions():
+    if not os.path.exists(CSV_PATH):
+        return []
+    with open(CSV_PATH, mode='r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return list(reader)
 
-    return {
-        "name": random.choice(["نورا", "مالك", "ليلى", "آدم", "سارة"]),
-        "tone": random.choice(["هادئة ومتفهمة", "تحفيزية ومليئة بالطاقة", "عقلانية وواقعية"]),
-        "style": random.choice(["أسلوب عميق فلسفي", "أسلوب مباشر وواضح", "أسلوب قصصي وتخيّلي"]),
-        "philosophy": "الرياضة ليست هدفًا، بل وسيلة لاكتشاف الذات والتعبير عنها.",
-        "traits_summary": traits_summary[:10]  # نختصر لأفضل 10 سمات لتحسين البرومبت
+def analyze_user(user):
+    full_text = ' '.join([user.get(f'q{i+1}', '') for i in range(20)]) + ' ' + user.get('custom_input', '')
+    analysis = {
+        "traits_1_40": apply_layers_1_40(full_text),
+        "traits_41_80": apply_layers_41_80(full_text),
+        "traits_81_100": apply_layers_81_100(full_text),
+        "traits_101_141": apply_layers_101_141(full_text),
+        "base_personality": BASE_PERSONALITY,
     }
-
-def default_personality():
     return {
-        "name": "آدم",
-        "tone": "واقعية وتحليلية",
-        "style": "أسلوب مباشر وواضح",
-        "philosophy": "نساعد كل شخص يكتشف رياضته الخاصة عبر تحليل نواياه العميقة.",
-        "traits_summary": ["لا يوجد تحليل سابق"]
-    }
+        "user_id": user.get("user_id", "unknown
