@@ -4,36 +4,29 @@ import json
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis
+from logic.brand_signature import add_brand_signature
 
-# إعداد عميل OpenAI
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# دالة المحادثة الذكية بعد زر "لم تعجبني التوصية"
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية", ratings=None):
-    # تأكيد اللغة
     if lang not in ["العربية", "English"]:
         lang = "English"
 
-    # تحويل الإجابات إلى نص للتحليل
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
         for v in answers.values()
     )
 
-    # استخراج التحليل الكامل
     all_analysis = apply_all_analysis_layers(full_text)
     save_user_analysis(user_id, all_analysis)
 
-    # تقييم التوصيات السابقة
     rating_text = ""
     if ratings:
         rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
         rating_text = "\n".join(rating_lines)
 
-    # توليد شخصية الشات
     personality = get_chat_personality(user_id)
 
-    # رسالة النظام (System Prompt)
     if lang == "العربية":
         system_prompt = f"""
 أنت {personality['name']}، مدرب ذكي تابع لفلسفة Sport Sync.
@@ -68,7 +61,6 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
 💡 Be personal, insightful, and emotionally intelligent.
         """
 
-    # برومبت المستخدم
     user_prompt = f"""
 📌 التوصيات السابقة:
 {previous_recommendation}
@@ -90,7 +82,6 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
 🎁 اجعل التوصية تشعره أنها صنعت له فقط.
     """
 
-    # إرسال الطلب إلى GPT
     try:
         response = client.chat.completions.create(
             model="gpt-4",
@@ -99,6 +90,6 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
                 {"role": "user", "content": user_prompt.strip()}
             ]
         )
-        return response.choices[0].message.content.strip()
+        return add_brand_signature(response.choices[0].message.content.strip())
     except Exception as e:
         return f"❌ حدث خطأ أثناء الاتصال بـ GPT: {str(e)}"
