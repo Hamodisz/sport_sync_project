@@ -9,7 +9,7 @@ from logic.analysis_layers_101_141 import apply_layers_101_141
 
 from logic.user_analysis import save_user_analysis
 from logic.prompt_engine import build_main_prompt
-from logic.brand_signature import append_brand_signature
+from logic.brand_signature import add_brand_signature
 from logic.memory_cache import load_cached_analysis, save_cached_analysis
 from logic.chat_personality_static import BASE_PERSONALITY
 from logic.user_logger import log_user_insight
