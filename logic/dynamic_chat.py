@@ -5,8 +5,8 @@ import json
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis
-from logic.brand_signature import append_brand_signature
-from logic.user_logger import log_user_insight
+from logic.brand_signature import add_brand_signature
+from logic.user_logger import log_user_insight  # ✅ الاسم الجديد
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -14,22 +14,26 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
     if lang not in ["العربية", "English"]:
         lang = "English"
 
+    # تجهيز النص الكامل من إجابات المستخدم
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
         for v in answers.values()
     )
 
+    # تحليل الطبقات
     all_analysis = apply_all_analysis_layers(full_text)
-    all_analysis["language"] = lang  # 🧠 حفظ اللغة المفضلة
     save_user_analysis(user_id, all_analysis)
 
-    rating_text = ""
-    if ratings:
-        rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
-        rating_text = "\n".join(rating_lines)
+    # حفظ اللغة والسمات في الذكاء المستمر
+    log_user_insight(user_id, {
+        "lang": lang,
+        "traits": all_analysis
+    })
 
+    # جلب شخصية الشات
     personality = get_chat_personality(user_id)
 
+    # بناء البرومبت الأساسي حسب اللغة
     if lang == "العربية":
         system_prompt = f"""
 أنت {personality['name']}، مدرب ذكي تابع لفلسفة Sport Sync.
@@ -64,6 +68,12 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
 💡 Be personal, insightful, and emotionally intelligent.
         """
 
+    # بناء محتوى المستخدم
+    rating_text = ""
+    if ratings:
+        rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
+        rating_text = "\n".join(rating_lines)
+
     user_prompt = f"""
 📌 التوصيات السابقة:
 {previous_recommendation}
@@ -85,6 +95,7 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
 🎁 اجعل التوصية تشعره أنها صنعت له فقط.
     """
 
+    # الاتصال بـ GPT
     try:
         response = client.chat.completions.create(
             model="gpt-4",
@@ -93,20 +104,6 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
                 {"role": "user", "content": user_prompt.strip()}
             ]
         )
-
-        final_reply = response.choices[0].message.content.strip()
-
-        # 🔁 تسجيل الإنسايت للتعلم المستمر
-        log_insight("dynamic_chat_response", user_id, {
-            "lang": lang,
-            "answers": answers,
-            "analysis": all_analysis,
-            "previous_recommendation": previous_recommendation,
-            "ratings": ratings,
-            "final_reply": final_reply
-        })
-
-        return add_brand_signature(final_reply)
-
+        return add_brand_signature(response.choices[0].message.content.strip())
     except Exception as e:
         return f"❌ حدث خطأ أثناء الاتصال بـ GPT: {str(e)}"
