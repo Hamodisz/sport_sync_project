@@ -1,87 +1,109 @@
-questions = {
-    "العربية": [
-        {
-            "question": "ما الذي يجذبك عادةً إلى نشاط معين؟",
-            "options": ["التحدي", "الاسترخاء", "التفاعل مع الآخرين", "السرعة والإثارة", "التركيز الذهني"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "ما نوع البيئة التي تفضلها أثناء التدريب أو ممارسة النشاط؟",
-            "options": ["مكان مفتوح", "مساحة داخلية منظمة", "أماكن مزدحمة ونشيطة", "أماكن هادئة وفارغة"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "كيف تصف أسلوبك في اتخاذ القرارات؟",
-            "options": ["سريع ومندفع", "تحليلي ومدروس", "اتّبع حدسي", "أستشير الآخرين غالبًا"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "كيف تتعامل مع الألم أو التعب؟",
-            "options": ["أتجاهله وأواصل", "أحلله وأتأقلم", "أتوقف فورًا", "أدفع نفسي للاستمرار"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "هل تفضل إتقان شيء واحد بعمق أم استكشاف أشياء كثيرة؟",
-            "options": ["إتقان شيء واحد", "تجربة أشياء متعددة", "توازن بين الاثنين"],
-            "multi": False,
-            "free": False,
-            "type": "single",
-            "allow_custom": False
-        }
-    ],
-
-    "English": [
-        {
-            "question": "What usually attracts you to an activity?",
-            "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "What type of environment do you prefer during training or activities?",
-            "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "How would you describe your decision-making style?",
-            "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "How do you deal with pain or fatigue?",
-            "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
-            "multi": True,
-            "free": True,
-            "type": "multiple",
-            "allow_custom": True
-        },
-        {
-            "question": "Do you prefer mastering one thing deeply or exploring many?",
-            "options": ["Mastering one", "Exploring many", "Balance between both"],
-            "multi": False,
-            "free": False,
-            "type": "single",
-            "allow_custom": False
-        }
-    ]
-}
+[
+  {
+    "question": "ما الذي يجذبك عادة إلى نشاط معين؟",
+    "options": ["التحدي", "الاسترخاء", "التفاعل مع الآخرين", "السرعة والحماس", "التركيز الذهني"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "ما نوع البيئة التي تفضلها أثناء ممارسة الرياضة؟",
+    "options": ["الهواء الطلق", "مكان داخلي", "أماكن مزدحمة", "أماكن هادئة"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "كيف تصف مستوى طاقتك العام؟",
+    "options": ["عالية جدًا", "متوسطة", "منخفضة", "متقلبة"],
+    "type": "single"
+  },
+  {
+    "question": "ما مدى حبك للتحديات الجسدية؟",
+    "options": ["أعشقها", "أحب بعضها", "أفضل التحديات الذهنية", "أتجنب التحديات"],
+    "type": "single"
+  },
+  {
+    "question": "هل تفضل اللعب ضمن فريق أم بشكل فردي؟",
+    "options": ["فريق", "فردي", "حسب الموقف"],
+    "type": "single"
+  },
+  {
+    "question": "كم مرة تمارس الرياضة أسبوعيًا؟",
+    "options": ["يوميًا", "3-4 مرات", "مرة أو مرتين", "نادراً"],
+    "type": "single"
+  },
+  {
+    "question": "هل لديك إصابات أو قيود جسدية؟",
+    "options": ["نعم", "لا"],
+    "type": "single",
+    "allow_custom": true
+  },
+  {
+    "question": "ما هدفك الأساسي من ممارسة الرياضة؟",
+    "options": ["إنقاص الوزن", "بناء عضل", "الاسترخاء", "تحسين المزاج", "اجتماعي"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "أي نوع من الرياضات يثير اهتمامك؟",
+    "options": ["رياضات قتالية", "رياضات فكرية", "رياضات مائية", "رياضات خطيرة", "رياضات استعراضية"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "ما مدى أهمية المنافسة بالنسبة لك؟",
+    "options": ["أحب التنافس", "لا أهتم", "أحب التعاون أكثر"],
+    "type": "single"
+  },
+  {
+    "question": "كيف تصف أسلوبك في اتخاذ القرارات؟",
+    "options": ["سريع واندفاعي", "مدروس وتحليلي", "عاطفي", "أستشير الآخرين"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "أي نوع من المهارات تحب أن تطورها؟",
+    "options": ["القوة البدنية", "المرونة", "الذكاء والتركيز", "التوازن", "السرعة"],
+    "type": "multiple"
+  },
+  {
+    "question": "كم تحب التمرن تحت ضغط؟",
+    "options": ["أحب الضغط", "أفضل الهدوء", "حسب الحالة"],
+    "type": "single"
+  },
+  {
+    "question": "هل تحب التجربة أو الالتزام بنظام معين؟",
+    "options": ["أحب التجربة", "أفضل النظام", "أوازن بينهما"],
+    "type": "single"
+  },
+  {
+    "question": "هل تحب الرياضات التي فيها أدوات؟",
+    "options": ["نعم", "لا", "حسب نوع الأداة"],
+    "type": "single"
+  },
+  {
+    "question": "هل سبق أن جربت رياضة لم تعجبك؟",
+    "options": ["نعم", "لا"],
+    "type": "single",
+    "allow_custom": true
+  },
+  {
+    "question": "هل ترغب برياضة قابلة للتطوير والاحتراف؟",
+    "options": ["نعم", "لا", "غير مهتم"],
+    "type": "single"
+  },
+  {
+    "question": "هل يهمك أن تكون الرياضة ممتعة بصريًا؟",
+    "options": ["جداً", "ليس كثيرًا", "لا"],
+    "type": "single"
+  },
+  {
+    "question": "ما مدى رغبتك في رياضة تحفز الأدرينالين؟",
+    "options": ["عالية", "متوسطة", "قليلة"],
+    "type": "single"
+  },
+  {
+    "question": "هل تهتم بتجربة رياضات غير تقليدية؟",
+    "options": ["نعم", "لا", "ربما"],
+    "type": "single"
+  }
+]
