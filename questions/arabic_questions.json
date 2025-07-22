@@ -1,67 +1,87 @@
-[
-  {
-    "question": "ما الذي يجذبك عادةً إلى أي نشاط؟",
-    "options": [
-      "التحدي",
-      "الاسترخاء",
-      "التفاعل مع الآخرين",
-      "السرعة والإثارة",
-      "التركيز الذهني"
+questions = {
+    "العربية": [
+        {
+            "question": "ما الذي يجذبك عادةً إلى نشاط معين؟",
+            "options": ["التحدي", "الاسترخاء", "التفاعل مع الآخرين", "السرعة والإثارة", "التركيز الذهني"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "ما نوع البيئة التي تفضلها أثناء التدريب أو ممارسة النشاط؟",
+            "options": ["مكان مفتوح", "مساحة داخلية منظمة", "أماكن مزدحمة ونشيطة", "أماكن هادئة وفارغة"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "كيف تصف أسلوبك في اتخاذ القرارات؟",
+            "options": ["سريع ومندفع", "تحليلي ومدروس", "اتّبع حدسي", "أستشير الآخرين غالبًا"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "كيف تتعامل مع الألم أو التعب؟",
+            "options": ["أتجاهله وأواصل", "أحلله وأتأقلم", "أتوقف فورًا", "أدفع نفسي للاستمرار"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "هل تفضل إتقان شيء واحد بعمق أم استكشاف أشياء كثيرة؟",
+            "options": ["إتقان شيء واحد", "تجربة أشياء متعددة", "توازن بين الاثنين"],
+            "multi": False,
+            "free": False,
+            "type": "single",
+            "allow_custom": False
+        }
     ],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "ما نوع البيئة التي تفضلها أثناء التدريب أو الأنشطة؟",
-    "options": [
-      "الطبيعة المفتوحة",
-      "مساحة داخلية منظمة",
-      "أماكن مزدحمة ونشيطة",
-      "أماكن هادئة وفارغة"
-    ],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "كيف تصف أسلوبك في اتخاذ القرارات؟",
-    "options": [
-      "سريع ومندفع",
-      "تحليلي ومتأني",
-      "أتبع حدسي",
-      "غالبًا أستشير الآخرين"
-    ],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "كيف تتعامل مع الألم أو التعب؟",
-    "options": [
-      "أتجاهله وأواصل",
-      "أحلل الوضع وأتأقلم",
-      "أتوقف فورًا",
-      "أتحمل وأكمل"
-    ],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "هل تفضل التعمق في شيء واحد أم استكشاف أشياء متعددة؟",
-    "options": [
-      "التعمق في شيء واحد",
-      "استكشاف أشياء متعددة",
-      "التوازن بين الاثنين"
-    ],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  }
-]
+
+    "English": [
+        {
+            "question": "What usually attracts you to an activity?",
+            "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "What type of environment do you prefer during training or activities?",
+            "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "How would you describe your decision-making style?",
+            "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "How do you deal with pain or fatigue?",
+            "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
+            "multi": True,
+            "free": True,
+            "type": "multiple",
+            "allow_custom": True
+        },
+        {
+            "question": "Do you prefer mastering one thing deeply or exploring many?",
+            "options": ["Mastering one", "Exploring many", "Balance between both"],
+            "multi": False,
+            "free": False,
+            "type": "single",
+            "allow_custom": False
+        }
+    ]
+}
