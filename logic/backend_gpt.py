@@ -17,6 +17,18 @@ from logic.user_logger import log_user_insight
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # -------------------------
+# تنظيف الكائن من الدوال قبل التخزين
+# -------------------------
+def clean_for_logging(obj):
+    if isinstance(obj, dict):
+        return {k: clean_for_logging(v) for k, v in obj.items() if not callable(v)}
+    elif isinstance(obj, list):
+        return [clean_for_logging(v) for v in obj if not callable(v)]
+    elif callable(obj):
+        return str(obj)
+    return obj
+
+# -------------------------
 # تحليل الطبقات
 # -------------------------
 def apply_all_analysis_layers(full_text):
@@ -57,16 +69,16 @@ def generate_sport_recommendation(answers, lang="العربية"):
         save_user_analysis(user_id, analysis)
         save_cached_analysis(user_id, analysis)
 
-    # حفظ اللغة والسمات للذكاء المستمر
+    # حفظ اللغة والسمات للذكاء المستمر (مع تنظيف الشخصية)
     log_user_insight(user_id, {
         "lang": lang,
         "traits": analysis,
-        "personality": BASE_PERSONALITY
+        "personality": clean_for_logging(BASE_PERSONALITY)
     })
 
     # بناء البرومبت النهائي
     prompt = build_main_prompt(analysis, lang)
-    prompt = append_brand_signature(prompt)
+    prompt = add_brand_signature(prompt)
 
     try:
         response = openai.ChatCompletion.create(
