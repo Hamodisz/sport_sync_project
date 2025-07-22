@@ -1,109 +1,162 @@
 [
   {
-    "question": "What usually attracts you to a certain activity?",
-    "options": ["Challenge", "Relaxation", "Social interaction", "Speed and excitement", "Mental focus"],
+    "question": "What usually attracts you to an activity?",
+    "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
+    "multi": true,
+    "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What kind of environment do you prefer when exercising?",
-    "options": ["Open nature", "Indoor space", "Crowded areas", "Calm and empty places"],
+    "question": "What type of environment do you prefer during training or activities?",
+    "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
+    "multi": true,
+    "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How would you describe your general energy level?",
-    "options": ["Very high", "Moderate", "Low", "Fluctuating"],
-    "type": "single"
-  },
-  {
-    "question": "How much do you enjoy physical challenges?",
-    "options": ["Love them", "Like some", "Prefer mental challenges", "Avoid them"],
-    "type": "single"
-  },
-  {
-    "question": "Do you prefer team or solo activities?",
-    "options": ["Team", "Solo", "Depends"],
-    "type": "single"
-  },
-  {
-    "question": "How often do you exercise per week?",
-    "options": ["Daily", "3–4 times", "1–2 times", "Rarely"],
-    "type": "single"
-  },
-  {
-    "question": "Do you have any physical limitations or injuries?",
-    "options": ["Yes", "No"],
-    "type": "single",
-    "allow_custom": true
-  },
-  {
-    "question": "What’s your primary goal from sports?",
-    "options": ["Weight loss", "Muscle building", "Relaxation", "Mood improvement", "Social"],
+    "question": "How would you describe your decision-making style?",
+    "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
+    "multi": true,
+    "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Which sport types interest you most?",
-    "options": ["Combat sports", "Mind games", "Water sports", "Extreme sports", "Performance arts"],
+    "question": "How do you deal with pain or fatigue?",
+    "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
+    "multi": true,
+    "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How important is competition to you?",
-    "options": ["Love it", "Don't care", "Prefer cooperation"],
-    "type": "single"
-  },
-  {
-    "question": "How do you usually make decisions?",
-    "options": ["Impulsive", "Analytical", "Emotional", "Consult others"],
+    "question": "Do you prefer mastering one thing deeply or exploring many?",
+    "options": ["Mastering one thing", "Exploring many things", "Balancing both"],
+    "multi": true,
+    "free": true,
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What kind of skills do you want to develop?",
-    "options": ["Strength", "Flexibility", "Focus & intelligence", "Balance", "Speed"],
-    "type": "multiple"
-  },
-  {
-    "question": "Do you like training under pressure?",
-    "options": ["Yes", "Prefer calm", "Depends"],
-    "type": "single"
-  },
-  {
-    "question": "Do you like exploring or sticking to structure?",
-    "options": ["Exploring", "Structure", "Balance between both"],
-    "type": "single"
-  },
-  {
-    "question": "Do you like sports that involve equipment?",
-    "options": ["Yes", "No", "Depends on equipment"],
-    "type": "single"
-  },
-  {
-    "question": "Have you tried a sport you didn’t like?",
-    "options": ["Yes", "No"],
-    "type": "single",
+    "question": "What is your main goal from practicing sports?",
+    "options": ["General health", "Entertainment", "Professional competition", "Social interaction", "Improving appearance"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you want a sport you can master professionally?",
-    "options": ["Yes", "No", "Not interested"],
-    "type": "single"
+    "question": "How committed are you when starting something new?",
+    "options": ["Always finish", "Sometimes continue", "Rarely commit", "Depends on mood"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Do you care about how visually engaging the sport is?",
-    "options": ["Very much", "Not really", "No"],
-    "type": "single"
+    "question": "What type of training do you enjoy most?",
+    "options": ["Solo exercises", "Group activities", "Mental challenges", "Adrenaline-filled activities"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Do you seek adrenaline-boosting sports?",
-    "options": ["High", "Moderate", "Low"],
-    "type": "single"
+    "question": "How would you rate your current fitness level?",
+    "options": ["Very high", "Moderate", "Low", "Beginner"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   },
   {
-    "question": "Are you open to trying non-traditional sports?",
-    "options": ["Yes", "No", "Maybe"],
-    "type": "single"
+    "question": "Do you prefer team-based or solo sports?",
+    "options": ["Team", "Solo", "Both", "Depends on the activity"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you enjoy competitive sports?",
+    "options": ["Yes, very much", "Sometimes", "Rarely", "Not at all"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "What time of day do you prefer for physical activity?",
+    "options": ["Morning", "Afternoon", "Evening", "Anytime"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How much do you enjoy taking risks?",
+    "options": ["Love it", "Moderate", "Avoid risk", "Depends on context"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you enjoy learning through movement?",
+    "options": ["Very much", "Sometimes", "Rarely", "Prefer theoretical learning"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How open are you to trying new activities?",
+    "options": ["Very open", "Cautious", "Prefer familiar things", "Rarely try new things"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you prefer fast-paced or slow-paced activities?",
+    "options": ["Fast-paced", "Slow-paced", "Mixed", "Depends on my mood"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How important are tangible achievements to you?",
+    "options": ["Very important", "Somewhat important", "Not important", "Don’t care about achievements"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you prefer training alone or with a coach?",
+    "options": ["With a coach", "Self-training", "Depends on the activity", "No preference"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How do you respond to new challenges?",
+    "options": ["Very excited", "Slightly anxious", "Try to avoid", "Need time to adapt"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How do you perform under pressure?",
+    "options": ["Thrive under pressure", "Average performance", "Performance drops", "Try to avoid pressure"],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
   }
 ]
