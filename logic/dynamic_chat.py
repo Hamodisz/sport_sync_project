@@ -1,10 +1,12 @@
 import openai
 import os
 import json
+
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis
 from logic.brand_signature import add_brand_signature
+from logic.insights_logger import log_insight
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -18,6 +20,7 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
     )
 
     all_analysis = apply_all_analysis_layers(full_text)
+    all_analysis["language"] = lang  # 🧠 حفظ اللغة المفضلة
     save_user_analysis(user_id, all_analysis)
 
     rating_text = ""
@@ -90,6 +93,20 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
                 {"role": "user", "content": user_prompt.strip()}
             ]
         )
-        return add_brand_signature(response.choices[0].message.content.strip())
+
+        final_reply = response.choices[0].message.content.strip()
+
+        # 🔁 تسجيل الإنسايت للتعلم المستمر
+        log_insight("dynamic_chat_response", user_id, {
+            "lang": lang,
+            "answers": answers,
+            "analysis": all_analysis,
+            "previous_recommendation": previous_recommendation,
+            "ratings": ratings,
+            "final_reply": final_reply
+        })
+
+        return add_brand_signature(final_reply)
+
     except Exception as e:
         return f"❌ حدث خطأ أثناء الاتصال بـ GPT: {str(e)}"
