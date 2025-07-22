@@ -1,13 +1,22 @@
+# chat_personality.py
+
 import os
 import csv
 import json
 from datetime import datetime
 
-from analysis.analysis_layers_1_40 import apply_layers_1_40
-from analysis.analysis_layers_41_80 import apply_layers_41_80
-from analysis.analysis_layers_81_100 import apply_layers_81_100
-from analysis.analysis_layers_101_141 import apply_layers_101_141
-from logic.chat_personality import BASE_PERSONALITY
+from logic.analysis_layers_1_40 import apply_layers_1_40
+from logic.analysis_layers_41_80 import apply_layers_41_80
+from logic.analysis_layers_81_100 import apply_layers_81_100
+from logic.analysis_layers_101_141 import apply_layers_101_141
+
+BASE_PERSONALITY = {
+    "name": "Sports Sync",
+    "description": "شخصية ذكية عاطفية وفضولية، هدفها توصيل كل شخص بالرياضة الأنسب له.",
+    "goal": "تحليل شخصية المستخدم وتقديم توصية رياضية مخصصة بكل صدق وإبداع.",
+    "voice": "دافئة، مشجعة، وتحفّز الناس للتجربة والاكتشاف.",
+    "motto": "كل شخص يستحق أن يجد لعبته!"
+}
 
 CSV_PATH = "data/user_sessions.csv"
 OUTPUT_PATH = "data/weekly_analysis.json"
@@ -20,7 +29,7 @@ def read_user_sessions():
         return list(reader)
 
 def analyze_user(user):
-    full_text = ' '.join([user.get(f'q{i+1}', '') for i in range(20)]) + ' ' + user.get('custom_input', '')
+    full_text = ' '.join([user.get(f'q{i+1}', '') for i in range(20)]) + ' ' + user.get("custom_input", "")
     analysis = {
         "traits_1_40": apply_layers_1_40(full_text),
         "traits_41_80": apply_layers_41_80(full_text),
@@ -29,4 +38,6 @@ def analyze_user(user):
         "base_personality": BASE_PERSONALITY,
     }
     return {
-        "user_id": user.get("user_id", "unknown
+        "user_id": user.get("user_id", "unknown"),
+        "analysis": analysis
+    }
