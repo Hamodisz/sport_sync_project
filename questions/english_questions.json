@@ -1,161 +1,121 @@
 [
   {
-    "question": "What usually attracts you to an activity?",
-    "options": ["Challenge", "Relaxation", "Interacting with others", "Speed and excitement", "Mental focus"],
-    "multi": true,
-    "free": true,
+    "question": "What usually attracts you to a new activity?",
+    "options": ["Challenge", "Relaxation", "Social interaction", "Speed and excitement", "Mental focus"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What type of environment do you prefer during training or activities?",
-    "options": ["Open nature", "Organized indoor space", "Busy and energetic places", "Quiet and empty areas"],
-    "multi": true,
-    "free": true,
+    "question": "Where do you feel most comfortable?",
+    "options": ["In nature", "In a well-organized indoor space", "In a busy place", "In a calm and quiet place"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How would you describe your decision-making style?",
-    "options": ["Quick and impulsive", "Analytical and deliberate", "Follow my intuition", "Often consult others"],
-    "multi": true,
-    "free": true,
+    "question": "How do you usually handle sudden pressure?",
+    "options": ["Take action immediately", "Pause and analyze", "Avoid it", "Ask for help", "Channel it into performance"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you deal with pain or fatigue?",
-    "options": ["Ignore it and keep going", "Analyze it and adjust", "Stop immediately", "Push through it"],
-    "multi": true,
-    "free": true,
+    "question": "How would you describe your energy level most days?",
+    "options": ["Very high", "Moderate", "Low", "It depends on the day"],
+    "type": "single",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you prefer solo or group activities?",
+    "options": ["Always solo", "Mostly solo", "A mix of both", "Mostly group", "Always group"],
+    "type": "single",
+    "allow_custom": true
+  },
+  {
+    "question": "How do you usually make decisions?",
+    "options": ["I go with my gut", "I think logically", "I weigh emotions", "I ask others first"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you prefer mastering one thing deeply or exploring many?",
-    "options": ["Mastering one thing", "Exploring many things", "Balancing both"],
-    "multi": true,
-    "free": true,
+    "question": "What drives you to keep going when things get hard?",
+    "options": ["Personal goals", "Support from others", "Competition", "Discipline", "Fear of failure"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What is your main goal from practicing sports?",
-    "options": ["General health", "Entertainment", "Professional competition", "Social interaction", "Improving appearance"],
-    "multi": true,
-    "free": true,
+    "question": "When trying something new, what describes you best?",
+    "options": ["I dive in immediately", "I watch others first", "I plan carefully", "I ask questions before starting"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How committed are you when starting something new?",
-    "options": ["Always finish", "Sometimes continue", "Rarely commit", "Depends on mood"],
-    "multi": true,
-    "free": true,
+    "question": "How do you feel about competition?",
+    "options": ["I love it", "I enjoy friendly rivalry", "I avoid it", "I focus on self-improvement"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What type of training do you enjoy most?",
-    "options": ["Solo exercises", "Group activities", "Mental challenges", "Adrenaline-filled activities"],
-    "multi": true,
-    "free": true,
+    "question": "How do you deal with failure?",
+    "options": ["Try again with more effort", "Reflect and adjust", "Take a break", "Blame myself", "Ignore it"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How would you rate your current fitness level?",
-    "options": ["Very high", "Moderate", "Low", "Beginner"],
-    "multi": true,
-    "free": true,
+    "question": "What pace do you prefer when making progress?",
+    "options": ["Fast and intense", "Steady and consistent", "Flexible, depends on mood", "Slow but deep"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you prefer team-based or solo sports?",
-    "options": ["Team", "Solo", "Both", "Depends on the activity"],
-    "multi": true,
-    "free": true,
+    "question": "What makes you lose interest in an activity?",
+    "options": ["Repetition", "Lack of challenge", "No progress", "Too many people", "Too quiet"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you enjoy competitive sports?",
-    "options": ["Yes, very much", "Sometimes", "Rarely", "Not at all"],
-    "multi": true,
-    "free": true,
+    "question": "How do you prefer to learn something new?",
+    "options": ["By doing", "By watching", "By reading", "With a coach", "Through trial and error"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What time of day do you prefer for physical activity?",
-    "options": ["Morning", "Afternoon", "Evening", "Anytime"],
-    "multi": true,
-    "free": true,
+    "question": "How do you feel after a physical activity?",
+    "options": ["Energized", "Calm", "Tired but satisfied", "Exhausted", "Bored"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How much do you enjoy taking risks?",
-    "options": ["Love it", "Moderate", "Avoid risk", "Depends on context"],
-    "multi": true,
-    "free": true,
+    "question": "Do you enjoy pushing your physical limits?",
+    "options": ["Yes, always", "Sometimes", "Only with guidance", "Not really", "I avoid it"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you enjoy learning through movement?",
-    "options": ["Very much", "Sometimes", "Rarely", "Prefer theoretical learning"],
-    "multi": true,
-    "free": true,
+    "question": "What does a perfect weekend look like?",
+    "options": ["Outdoor adventure", "Relaxing alone", "Team activities", "Exploring something new", "Working on a goal"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How open are you to trying new activities?",
-    "options": ["Very open", "Cautious", "Prefer familiar things", "Rarely try new things"],
-    "multi": true,
-    "free": true,
+    "question": "Do you enjoy repetitive routines?",
+    "options": ["Yes, it builds discipline", "Only if I see progress", "No, I get bored", "I like to switch things up"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you prefer fast-paced or slow-paced activities?",
-    "options": ["Fast-paced", "Slow-paced", "Mixed", "Depends on my mood"],
-    "multi": true,
-    "free": true,
+    "question": "How much do you enjoy solving problems?",
+    "options": ["I love challenges", "If they’re physical", "If they’re strategic", "Not much", "Only with others"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How important are tangible achievements to you?",
-    "options": ["Very important", "Somewhat important", "Not important", "Don’t care about achievements"],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
+    "question": "Do you prefer fast-paced or slow-paced environments?",
+    "options": ["Fast and intense", "Slow and mindful", "A mix", "Depends on the day"],
+    "type": "single",
     "allow_custom": true
   },
   {
-    "question": "Do you prefer training alone or with a coach?",
-    "options": ["With a coach", "Self-training", "Depends on the activity", "No preference"],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "How do you respond to new challenges?",
-    "options": ["Very excited", "Slightly anxious", "Try to avoid", "Need time to adapt"],
-    "multi": true,
-    "free": true,
-    "type": "multiple",
-    "allow_custom": true
-  },
-  {
-    "question": "How do you perform under pressure?",
-    "options": ["Thrive under pressure", "Average performance", "Performance drops", "Try to avoid pressure"],
-    "multi": true,
-    "free": true,
+    "question": "Do you like sharing your achievements?",
+    "options": ["Yes, I post them", "Only with close friends", "Not really", "I do it for myself"],
     "type": "multiple",
     "allow_custom": true
   }
