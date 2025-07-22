@@ -12,7 +12,7 @@ from logic.prompt_engine import build_main_prompt
 from logic.brand_signature import append_brand_signature
 from logic.memory_cache import load_cached_analysis, save_cached_analysis
 from logic.chat_personality_static import BASE_PERSONALITY
-from logic.insights_log import log_user_insight
+from logic.user_logger import log_user_insight
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
