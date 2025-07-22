@@ -1,12 +1,12 @@
-import openai
 import os
 import json
+import openai
 
 from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis
+from logic.user_logger import log_user_insight
 from logic.brand_signature import add_brand_signature
-from logic.user_logger import log_user_insight  # ✅ الاسم الجديد
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -14,65 +14,65 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
     if lang not in ["العربية", "English"]:
         lang = "English"
 
-    # تجهيز النص الكامل من إجابات المستخدم
+    # تحويل الإجابات إلى نص واحد
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
         for v in answers.values()
     )
 
-    # تحليل الطبقات
-    all_analysis = apply_all_analysis_layers(full_text)
-    save_user_analysis(user_id, all_analysis)
+    # تحليل الإجابات
+    analysis = apply_all_analysis_layers(full_text)
+    save_user_analysis(user_id, analysis)
 
-    # حفظ اللغة والسمات في الذكاء المستمر
+    # حفظ اللغة والسمات للذكاء المستمر
     log_user_insight(user_id, {
         "lang": lang,
-        "traits": all_analysis
+        "traits": analysis
     })
 
-    # جلب شخصية الشات
-    personality = get_chat_personality(user_id)
-
-    # بناء البرومبت الأساسي حسب اللغة
-    if lang == "العربية":
-        system_prompt = f"""
-أنت {personality['name']}، مدرب ذكي تابع لفلسفة Sport Sync.
-نبرتك: {personality['tone']} – أسلوبك: {personality['style']}
-فلسفتك: {personality['philosophy']}
-تحليلك يعتمد على طبقات نفسية (١ إلى ١٤١) تربط بين النية والسياق والتجربة.
-
-🎯 مهمتك الآن:
-1. تحليل سبب عدم رضا المستخدم عن التوصيات السابقة.
-2. ربط إجاباته وسلوكه وتقييمه لاستخراج هويته العميقة.
-3. تقديم توصية جديدة أعمق (من رياضة أو عدة رياضات مناسبة).
-4. إذا شعرت أن هناك فجوة في الفهم، اطرح سؤال أو أكثر لتقوية التوصية.
-
-💡 لا تكرر أي رياضة ذكرت سابقًا.
-💡 إذا كانت الرياضة خطيرة أو صعبة الوصول، اقترح نسخة VR مناسبة.
-💡 لا تبدو كآلة بل كمدرب يعرفه بذكاء.
-        """
-    else:
-        system_prompt = f"""
-You are {personality['name']}, a Sport Sync smart coach.
-Tone: {personality['tone']} – Style: {personality['style']}
-Philosophy: {personality['philosophy']}
-Your analysis uses layered interpretation (1–141), intent, and personal context.
-
-🎯 Your mission:
-1. Understand why the previous recommendations didn’t resonate.
-2. Extract the user's deeper personality and intentions.
-3. Suggest better-fitting sports (real or VR version if inaccessible).
-4. If needed, ask 1–3 smart follow-up questions.
-
-💡 Never repeat previous sports.
-💡 Be personal, insightful, and emotionally intelligent.
-        """
-
-    # بناء محتوى المستخدم
+    # تقييم التوصيات السابقة
     rating_text = ""
     if ratings:
         rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
         rating_text = "\n".join(rating_lines)
+
+    # استخراج شخصية المدرب
+    personality = get_chat_personality(user_id)
+
+    # تجهيز البرومبت
+    if lang == "العربية":
+        system_prompt = f"""
+أنت {personality['name']}، مدرب ذكي من فريق Sport Sync.
+نبرتك: {personality['tone']} – أسلوبك: {personality['style']}
+فلسفتك: {personality['philosophy']}
+تحليلك يعتمد على طبقات نفسية من 1 إلى 141.
+
+🎯 مهمتك:
+1. تحليل سبب عدم رضا المستخدم عن التوصيات السابقة.
+2. فهم شخصيته ونيته الحقيقية من خلال التقييمات والإجابات.
+3. اقتراح رياضة (أو أكثر) بديلة أعمق تعبر عنه.
+4. إذا شعرت أن هناك فجوة، اسأله سؤال واحد ذكي.
+
+💡 لا تكرر رياضة ذُكرت سابقًا.
+💡 إذا كانت الرياضة نادرة أو خطيرة، اقترح نسخة VR منها.
+💡 اجعل الرد إنساني وعاطفي.
+"""
+    else:
+        system_prompt = f"""
+You are {personality['name']}, a smart coach from the Sport Sync team.
+Tone: {personality['tone']} – Style: {personality['style']}
+Philosophy: {personality['philosophy']}
+You analyze using 141 psychological layers and trait-based reasoning.
+
+🎯 Your task:
+1. Analyze why the previous suggestions didn't work.
+2. Understand the user's deeper intent from their answers and ratings.
+3. Recommend an alternative (real or VR) that fits them better.
+4. If needed, ask one smart follow-up question.
+
+💡 Don't repeat any previous sport.
+💡 Be emotional, insightful, and human.
+"""
 
     user_prompt = f"""
 📌 التوصيات السابقة:
@@ -81,21 +81,18 @@ Your analysis uses layered interpretation (1–141), intent, and personal contex
 📋 إجابات المستخدم:
 {json.dumps(answers, ensure_ascii=False, indent=2)}
 
-🧠 التحليل الكامل من الطبقات (1–141):
-{json.dumps(all_analysis, ensure_ascii=False, indent=2)}
+🧠 التحليل الكامل:
+{json.dumps(analysis, ensure_ascii=False, indent=2)}
 
 {rating_text}
 
 🔍 المطلوب:
-- حلل بذكاء سبب عدم الاقتناع.
-- اربط بين كل إجابة وتقييم وتحليل لهوية المستخدم.
-- اقترح رياضة بديلة (أو أكثر) بأسلوب ذكي وعاطفي.
-- إذا احتجت فهمًا أعمق، اسأله الآن ثم انتظر إجابته لتكمل.
+- حلل سبب عدم رضا المستخدم.
+- استخرج عمق شخصيته.
+- اقترح رياضة بديلة تشعره بأنها له فقط.
+- إذا احتجت، اسأله سؤالًا واحدًا لتعميق الفهم.
+"""
 
-🎁 اجعل التوصية تشعره أنها صنعت له فقط.
-    """
-
-    # الاتصال بـ GPT
     try:
         response = client.chat.completions.create(
             model="gpt-4",
