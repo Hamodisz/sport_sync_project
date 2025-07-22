@@ -1,0 +1,67 @@
+[
+  {
+    "question": "What usually attracts you to an activity?",
+    "options": [
+      "Challenge",
+      "Relaxation",
+      "Interacting with others",
+      "Speed and excitement",
+      "Mental focus"
+    ],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "What type of environment do you prefer during training or activities?",
+    "options": [
+      "Open nature",
+      "Organized indoor space",
+      "Busy and energetic places",
+      "Quiet and empty areas"
+    ],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How would you describe your decision-making style?",
+    "options": [
+      "Quick and impulsive",
+      "Analytical and deliberate",
+      "Follow my intuition",
+      "Often consult others"
+    ],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "How do you deal with pain or fatigue?",
+    "options": [
+      "Ignore it and keep going",
+      "Analyze it and adjust",
+      "Stop immediately",
+      "Push through it"
+    ],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "question": "Do you prefer mastering one thing deeply or exploring many?",
+    "options": [
+      "Master one deeply",
+      "Explore many",
+      "Balance between both"
+    ],
+    "multi": true,
+    "free": true,
+    "type": "multiple",
+    "allow_custom": true
+  }
+]
