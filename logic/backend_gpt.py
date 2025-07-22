@@ -1,24 +1,34 @@
+import os
 import json
+import openai
+
 from logic.analysis_layers_1_40 import apply_layers_1_40
 from logic.analysis_layers_41_80 import apply_layers_41_80
 from logic.analysis_layers_81_100 import apply_layers_81_100
 from logic.analysis_layers_101_141 import apply_layers_101_141
+
 from logic.user_analysis import save_user_analysis
 from logic.prompt_engine import build_main_prompt
-from logic.brand_signature import add_brand_signature
-from openai import OpenAI
-import os
+from logic.brand_signature import append_brand_signature
+from logic.memory_cache import load_cached_analysis, save_cached_analysis
+from logic.chat_personality import save_user_meta  # لتطور الذكاء وتخزين اللغة
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def apply_all_analysis_layers(text):
+# -------------------------
+# التحليل الكامل للسمات
+# -------------------------
+def apply_all_analysis_layers(full_text):
     return {
-        "traits_1_40": apply_layers_1_40(text),
-        "traits_41_80": apply_layers_41_80(text),
-        "traits_81_100": apply_layers_81_100(text),
-        "traits_101_141": apply_layers_101_141(text),
+        "traits_1_40": apply_layers_1_40(full_text),
+        "traits_41_80": apply_layers_41_80(full_text),
+        "traits_81_100": apply_layers_81_100(full_text),
+        "traits_101_141": apply_layers_101_141,
     }
 
+# -------------------------
+# تهيئة الإجابات للنص الكامل
+# -------------------------
 def format_answers_for_prompt(answers):
     parts = []
     for i in range(20):
@@ -32,31 +42,53 @@ def format_answers_for_prompt(answers):
         parts.append(f"Extra: {extra}")
     return '\n'.join(parts)
 
+# -------------------------
+# التوصية الذكية
+# -------------------------
 def generate_sport_recommendation(answers, lang="العربية"):
     user_id = answers.get("user_id", "unknown")
     full_text = format_answers_for_prompt(answers)
-    analysis = apply_all_analysis_layers(full_text)
-    save_user_analysis(user_id, analysis)
 
+    # تجربة التحميل من الكاش لتسريع أول إجابة
+    analysis = load_cached_analysis(user_id)
+    if not analysis:
+        analysis = apply_all_analysis_layers(full_text)
+        save_user_analysis(user_id, analysis)
+        save_cached_analysis(user_id, analysis)
+
+    # حفظ اللغة والسمات للذكاء المستمر
+    save_user_meta(user_id, analysis, lang)
+
+    # بناء البرومبت النهائي
     prompt = build_main_prompt(analysis, lang)
+    prompt = append_brand_signature(prompt)
 
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
+            messages=[
+                {
+                    "role": "system",
+                    "content": "أنت Sports Sync، مساعد ذكي متخصص في تحليل الشخصية الرياضية. هدفك أن تفهم الشخص بعمق وتساعده يلاقي الرياضة المثالية اللي تعكس شخصيته وتخليه يحب التمرين فعلاً."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
             temperature=0.85,
         )
-        content = response.choices[0].message.content.strip()
+        content = response['choices'][0]['message']['content'].strip()
     except Exception as e:
         print("❌ خطأ أثناء الاتصال بـ OpenAI:", str(e))
         return ["عذرًا، حدث خطأ أثناء توليد التوصية. يرجى المحاولة لاحقًا."]
 
+    # تقسيم التوصيات
     recommendations = []
     for line in content.split("\n"):
         if line.strip().startswith(("1.", "2.", "3.")):
             recommendations.append(line.strip())
-
     if len(recommendations) < 3:
         recommendations = [content]
 
-    return [add_brand_signature(r) for r in recommendations]
+    return recommendations
