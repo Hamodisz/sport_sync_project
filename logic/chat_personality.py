@@ -1,43 +1,35 @@
-# chat_personality.py
-
-import os
-import csv
 import json
-from datetime import datetime
+import os
 
-from logic.analysis_layers_1_40 import apply_layers_1_40
-from logic.analysis_layers_41_80 import apply_layers_41_80
-from logic.analysis_layers_81_100 import apply_layers_81_100
-from logic.analysis_layers_101_141 import apply_layers_101_141
+MEMORY_PATH = "data/chat_memory.json"
 
-BASE_PERSONALITY = {
-    "name": "Sports Sync",
-    "description": "شخصية ذكية عاطفية وفضولية، هدفها توصيل كل شخص بالرياضة الأنسب له.",
-    "goal": "تحليل شخصية المستخدم وتقديم توصية رياضية مخصصة بكل صدق وإبداع.",
-    "voice": "دافئة، مشجعة، وتحفّز الناس للتجربة والاكتشاف.",
-    "motto": "كل شخص يستحق أن يجد لعبته!"
-}
+# تحميل أو إنشاء الذاكرة
+def load_memory():
+    if not os.path.exists(MEMORY_PATH):
+        return {}
+    with open(MEMORY_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-CSV_PATH = "data/user_sessions.csv"
-OUTPUT_PATH = "data/weekly_analysis.json"
+def save_memory(memory):
+    os.makedirs("data", exist_ok=True)
+    with open(MEMORY_PATH, "w", encoding="utf-8") as f:
+        json.dump(memory, f, ensure_ascii=False, indent=2)
 
-def read_user_sessions():
-    if not os.path.exists(CSV_PATH):
-        return []
-    with open(CSV_PATH, mode='r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+# استرجاع شخصية الذكاء لمستخدم
+def get_chat_personality(user_id):
+    memory = load_memory()
+    return memory.get(user_id, {
+        "name": "Sports Sync",
+        "tone": "تحفيزي وودود",
+        "style": "تحليل عميق وعاطفة ذكية",
+        "philosophy": "كل شخص يملك رياضة مخلوقة له – وأنا هنا لأجدها معه."
+    })
 
-def analyze_user(user):
-    full_text = ' '.join([user.get(f'q{i+1}', '') for i in range(20)]) + ' ' + user.get("custom_input", "")
-    analysis = {
-        "traits_1_40": apply_layers_1_40(full_text),
-        "traits_41_80": apply_layers_41_80(full_text),
-        "traits_81_100": apply_layers_81_100(full_text),
-        "traits_101_141": apply_layers_101_141(full_text),
-        "base_personality": BASE_PERSONALITY,
-    }
-    return {
-        "user_id": user.get("user_id", "unknown"),
-        "analysis": analysis
-    }
+# تحديث الشخصية ببيانات جديدة (لغة، سمات...إلخ)
+def update_chat_personality(user_id, lang, traits_summary):
+    memory = load_memory()
+    base = memory.get(user_id, get_chat_personality(user_id))
+    base["lang"] = lang
+    base["last_traits"] = traits_summary
+    memory[user_id] = base
+    save_memory(memory)
