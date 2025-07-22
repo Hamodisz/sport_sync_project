@@ -1,4 +1,4 @@
-# logic/insights_log.py
+# logic/user_logger.py
 
 import json
 import os
