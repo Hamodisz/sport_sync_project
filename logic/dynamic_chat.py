@@ -6,7 +6,7 @@ from logic.backend_gpt import apply_all_analysis_layers
 from logic.chat_personality import get_chat_personality
 from logic.user_analysis import save_user_analysis
 from logic.brand_signature import append_brand_signature
-from logic.insights_log import log_insight
+from logic.user_logger import log_user_insight
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
