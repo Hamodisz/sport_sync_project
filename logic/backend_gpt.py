@@ -69,7 +69,7 @@ def generate_sport_recommendation(answers, lang="العربية"):
         save_user_analysis(user_id, analysis)
         save_cached_analysis(user_id, analysis)
 
-    # حفظ اللغة والسمات للذكاء المستمر (مع تنظيف الشخصية)
+    # حفظ اللغة والسمات والشخصية (مع تنظيف BASE_PERSONALITY)
     log_user_insight(user_id, {
         "lang": lang,
         "traits": analysis,
