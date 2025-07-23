@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import json
 import uuid
@@ -16,20 +18,27 @@ def load_questions(lang):
         return json.load(f)
 
 # ---------------------
-# تخزين البيانات
+# تخزين الجلسة في CSV
 # ---------------------
 def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=None):
     data = {
         "user_id": user_id,
         "timestamp": datetime.now().isoformat(),
         "language": lang,
-        "answers": answers,
+        "answers": json.dumps(answers, ensure_ascii=False),
         "recommendation": recommendation,
         "rating": rating,
         "liked": liked
     }
     df = pd.DataFrame([data])
-    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=False, encoding="utf-8")
+    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=not file_exists("data/user_sessions.csv"), encoding="utf-8")
+
+def file_exists(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return True
+    except FileNotFoundError:
+        return False
 
 # ---------------------
 # واجهة المستخدم
@@ -39,6 +48,7 @@ st.title("🎯 توصيتك الرياضية الذكية")
 
 # اختيار اللغة
 lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
+
 questions = load_questions(lang)
 answers = {}
 user_id = st.session_state.get("user_id", str(uuid.uuid4()))
@@ -63,7 +73,6 @@ if "recommendations" not in st.session_state:
                     answers[q_key] = [answers[q_key], custom_input]
 
     answers["custom_input"] = st.text_area("✏️ هل هناك شيء تحب إضافته؟", "")
-    st.session_state["user_id"] = user_id
 
     if st.button("🔍 احصل على توصيتي الرياضية"):
         with st.spinner("جاري تحليل إجاباتك..."):
@@ -73,6 +82,7 @@ if "recommendations" not in st.session_state:
 
             st.session_state["recommendations"] = recommendations
             st.session_state["answers"] = answers
+            st.session_state["user_id"] = user_id
             st.success("✅ تم إنشاء التوصيات!")
 
 # ---------------------
