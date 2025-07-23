@@ -2,7 +2,14 @@
 
 import json
 
-def build_main_prompt(analysis, lang="العربية"):
+def build_main_prompt(
+    analysis,
+    answers=None,
+    personality=None,
+    previous_recommendation=None,
+    ratings=None,
+    lang="العربية"
+):
     if lang == "العربية":
         return f"""
 أنا Sports Sync، رفيقك الذكي في رحلتك لاكتشاف الرياضة الأنسب لك.
