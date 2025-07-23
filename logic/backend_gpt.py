@@ -1,3 +1,5 @@
+# backend_gpt.py
+
 import os
 import json
 import openai
@@ -36,7 +38,7 @@ def apply_all_analysis_layers(full_text):
         "traits_1_40": apply_layers_1_40(full_text),
         "traits_41_80": apply_layers_41_80(full_text),
         "traits_81_100": apply_layers_81_100(full_text),
-        "traits_101_141": apply_layers_101_141,
+        "traits_101_141": apply_layers_101_141(full_text),  # ✅ تم التعديل هنا
     }
 
 # -------------------------
@@ -69,7 +71,7 @@ def generate_sport_recommendation(answers, lang="العربية"):
         save_user_analysis(user_id, analysis)
         save_cached_analysis(user_id, analysis)
 
-    # حفظ اللغة والسمات والشخصية (مع تنظيف BASE_PERSONALITY)
+    # حفظ اللغة والسمات للذكاء المستمر (مع تنظيف الشخصية)
     log_user_insight(user_id, {
         "lang": lang,
         "traits": analysis,
