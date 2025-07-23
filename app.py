@@ -1,128 +1,74 @@
-# app.py
+# logic/backend_gpt.py
 
-import streamlit as st
-import json
-import uuid
-import pandas as pd
 import os
-from datetime import datetime
+import openai
+import json
+from logic.prompt_engine import build_main_prompt
+from logic.user_logger import log_user_insight
+from logic.memory_cache import get_cached_personality
+from logic.user_analysis import analyze_user_from_answers
 
-from logic.backend_gpt import generate_sport_recommendation
-from logic.dynamic_chat import start_dynamic_chat
+# إعداد مفتاح OpenAI
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ---------------------
-# تحميل الأسئلة
-# ---------------------
-def load_questions(lang):
-    path = f"questions/{'arabic_questions.json' if lang == 'العربية' else 'english_questions.json'}"
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-# ---------------------
-# تخزين البيانات
-# ---------------------
-def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=None):
-    path = "data/user_sessions.csv"
-    os.makedirs("data", exist_ok=True)
-
-    data = {
-        "user_id": user_id,
-        "timestamp": datetime.now().isoformat(),
-        "language": lang,
-        "answers": json.dumps(answers, ensure_ascii=False),
-        "recommendation": recommendation,
-        "rating": rating,
-        "liked": liked
-    }
-    df = pd.DataFrame([data])
-
-    # فحص إذا الملف موجود ومش فاضي
+# -------------------------------
+# توليد التوصيات الرياضية الذكية
+# -------------------------------
+def generate_sport_recommendation(answers, lang="العربية"):
     try:
-        file_exists = os.path.exists(path) and pd.read_csv(path).shape[0] > 0
-    except pd.errors.EmptyDataError:
-        file_exists = False
+        # تحليل المستخدم من الإجابات
+        user_analysis = analyze_user_from_answers(answers)
+        personality = get_cached_personality(user_analysis, lang=lang)
 
-    df.to_csv(path, mode="a", index=False, header=not file_exists, encoding="utf-8")
+        # توليد البرومبت الكامل (مع مفاتيح محسّنة لتوافق الديناميك)
+        prompt = build_main_prompt(
+            analysis=user_analysis,
+            answers=answers,
+            personality=personality,
+            previous_recommendation=None,
+            ratings=None,
+            lang=lang
+        )
 
-# ---------------------
-# واجهة المستخدم
-# ---------------------
-st.set_page_config(page_title="توصية رياضية", layout="centered")
-st.title("🎯 توصيتك الرياضية الذكية")
+        # إرسال الطلب إلى OpenAI
+        completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.9,
+        )
 
-# اختيار اللغة
-lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
-questions = load_questions(lang)
-answers = {}
-user_id = st.session_state.get("user_id", str(uuid.uuid4()))
+        full_response = completion.choices[0].message.content.strip()
 
-# ---------------------
-# عرض الأسئلة
-# ---------------------
-if "recommendations" not in st.session_state:
-    for idx, q in enumerate(questions, 1):
-        q_key = f"q{idx}"
-        if q["type"] == "multiple":
-            selected = st.multiselect(q["question"], q["options"], key=q_key)
-            answers[q_key] = selected
+        # تقسيم التوصيات (يجب أن يحتوي الرد على 3 توصيات مفصولة بعناوين واضحة)
+        recs = split_recommendations(full_response)
+
+        # حفظ في اللوج
+        log_user_insight({
+            "answers": answers,
+            "language": lang,
+            "recommendations": recs,
+            "user_analysis": user_analysis,
+            "personality_used": personality,
+        })
+
+        return recs
+    except Exception as e:
+        return [f"حدث خطأ أثناء توليد التوصية: {str(e)}"]
+
+# -------------------------------
+# تقسيم التوصيات من الرد الكامل
+# -------------------------------
+def split_recommendations(full_text):
+    # طريقة ذكية لتقسيم النص إلى 3 أجزاء
+    recs = []
+    lines = full_text.splitlines()
+    buffer = []
+    for line in lines:
+        if "التوصية" in line and len(buffer) > 0:
+            recs.append("\n".join(buffer).strip())
+            buffer = [line]
         else:
-            selected = st.radio(q["question"], q["options"], key=q_key)
-            answers[q_key] = selected
-
-        if q.get("free", False) or q.get("allow_custom", False):
-            custom_input = st.text_input("📝 إجابة أخرى (اختياري):", key=f"{q_key}_custom")
-            if custom_input:
-                if isinstance(answers[q_key], list):
-                    answers[q_key].append(custom_input)
-                else:
-                    answers[q_key] = [answers[q_key], custom_input]
-
-    answers["custom_input"] = st.text_area("✏️ هل هناك شيء تحب إضافته؟", "")
-
-    if st.button("🔍 احصل على توصيتي الرياضية"):
-        with st.spinner("جاري تحليل إجاباتك..."):
-            recommendations = generate_sport_recommendation(answers, lang)
-            if not isinstance(recommendations, list):
-                recommendations = [recommendations]
-
-            st.session_state["recommendations"] = recommendations
-            st.session_state["answers"] = answers
-            st.session_state["user_id"] = user_id
-            st.success("✅ تم إنشاء التوصيات!")
-
-# ---------------------
-# عرض التوصيات + التقييم + الشات
-# ---------------------
-if "recommendations" in st.session_state:
-    ratings = []
-    for i, rec in enumerate(st.session_state["recommendations"]):
-        with st.expander(f"🎽 التوصية رقم {i+1}"):
-            st.markdown(rec)
-            rating = st.slider(f"ما مدى رضاك عن التوصية رقم {i+1}؟", 1, 10, 7, key=f"rating_{i}")
-            ratings.append(rating)
-            save_user_data(
-                st.session_state["user_id"],
-                lang,
-                st.session_state["answers"],
-                rec,
-                rating=rating
-            )
-
-    if st.button("🔁 أريد توصية أعمق"):
-        with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
-            deeper_response = start_dynamic_chat(
-                answers=st.session_state["answers"],
-                previous_recommendation="\n".join(st.session_state["recommendations"]),
-                ratings=ratings,
-                user_id=st.session_state["user_id"],
-                lang=lang
-            )
-            st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
-            st.markdown(deeper_response)
-
-# ---------------------
-# روابط المشاركة
-# ---------------------
-st.markdown("---")
-st.markdown(f"[🔗 رابط عام لمشاركة النتيجة](https://sport-sync.onrender.com/share/{user_id})")
-st.markdown(f"[📨 دعوة صديق لتجربة الاختبار](https://sport-sync.onrender.com)")
+            buffer.append(line)
+    if buffer:
+        recs.append("\n".join(buffer).strip())
+    return recs[:3]  # نضمن فقط 3 توصيات كحد أقصى
