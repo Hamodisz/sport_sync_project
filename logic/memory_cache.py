@@ -2,56 +2,73 @@
 
 import os
 import json
-import hashlib
 
 CACHE_DIR = "cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# ----------------------------------------
-# توليد اسم ملف بناء على user_id
-# ----------------------------------------
-def _get_cache_path(user_id, suffix):
-    hashed = hashlib.md5(user_id.encode()).hexdigest()
-    return os.path.join(CACHE_DIR, f"{hashed}_{suffix}.json")
+# -------------------------
+# مسارات التخزين
+# -------------------------
+def _get_analysis_path(user_id):
+    return os.path.join(CACHE_DIR, f"{user_id}_analysis.json")
 
-# ----------------------------------------
-# حفظ التحليل المؤقت
-# ----------------------------------------
-def save_cached_analysis(user_id, analysis):
-    path = _get_cache_path(user_id, "analysis")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(analysis, f, ensure_ascii=False, indent=2)
+def _get_personality_path(user_id):
+    return os.path.join(CACHE_DIR, f"{user_id}_personality.json")
 
-# ----------------------------------------
-# تحميل التحليل المؤقت
-# ----------------------------------------
+# -------------------------
+# تحميل وحفظ التحليل
+# -------------------------
 def load_cached_analysis(user_id):
-    path = _get_cache_path(user_id, "analysis")
+    path = _get_analysis_path(user_id)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return None
 
-# ----------------------------------------
-# حفظ الشخصية المحسوبة
-# ----------------------------------------
-def save_cached_personality(user_id, personality):
-    path = _get_cache_path(user_id, "personality")
+def save_cached_analysis(user_id, analysis):
+    path = _get_analysis_path(user_id)
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(personality, f, ensure_ascii=False, indent=2)
+        json.dump(analysis, f, ensure_ascii=False, indent=2)
 
-# ----------------------------------------
-# تحميل الشخصية من الذاكرة
-# ----------------------------------------
+# -------------------------
+# تحميل وحفظ شخصية المدرب
+# -------------------------
 def get_cached_personality(user_analysis, lang="العربية"):
-    user_id = user_analysis.get("user_id", "default")
-    path = _get_cache_path(user_id, "personality")
+    # توليد اسم مميز حسب اللغة والسمات
+    key = f"{lang}_{hash(json.dumps(user_analysis, sort_keys=True))}"
+    path = _get_personality_path(key)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {
-        "name": "مدرب Sports Sync",
-        "tone": "ذكي وتحفيزي",
-        "style": "واقعي وشخصي",
-        "philosophy": "الرياضة طريق لاكتشاف الذات، وليس فقط وسيلة للياقة."
-    }
+    return build_dynamic_personality(user_analysis, lang)
+
+def save_cached_personality(key, personality):
+    path = _get_personality_path(key)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(personality, f, ensure_ascii=False, indent=2)
+
+# -------------------------
+# بناء ديناميكي لشخصية المدرب
+# -------------------------
+def build_dynamic_personality(user_analysis, lang="العربية"):
+    # يتم توليد الشخصية بناءً على التحليل
+    # (يمكن تعديل هذا النموذج لاحقًا للتخصيص العميق)
+    if lang == "العربية":
+        personality = {
+            "name": "مدرب Sports Sync",
+            "tone": "حنون لكن مباشر",
+            "style": "عاطفي، عميق، واقعي",
+            "philosophy": "نبحث عن الرياضة التي تكشف جوهرك وتمنحك معنى، مش مجرد نشاط عابر."
+        }
+    else:
+        personality = {
+            "name": "Coach Sports Sync",
+            "tone": "Caring yet Direct",
+            "style": "Emotional, Deep, Practical",
+            "philosophy": "We search for the sport that brings out your core—not just another activity."
+        }
+
+    # تخزينها في الذاكرة
+    key = f"{lang}_{hash(json.dumps(user_analysis, sort_keys=True))}"
+    save_cached_personality(key, personality)
+    return personality
