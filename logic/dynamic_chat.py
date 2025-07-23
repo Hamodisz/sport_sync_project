@@ -4,25 +4,32 @@ import os
 import json
 import openai
 from logic.backend_gpt import apply_all_analysis_layers
-from logic.chat_personality_static import BASE_PERSONALITY
 from logic.user_logger import log_user_insight
 from logic.brand_signature import add_brand_signature
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# تنظيف الشخصية من القيم غير القابلة للتسلسل
-def clean_for_logging(obj):
-    if isinstance(obj, dict):
-        return {k: clean_for_logging(v) for k, v in obj.items() if not callable(v)}
-    elif isinstance(obj, list):
-        return [clean_for_logging(v) for v in obj if not callable(v)]
-    elif callable(obj):
-        return str(obj)
-    return obj
+def get_dynamic_personality(lang):
+    if lang == "العربية":
+        return {
+            "name": "سينك",
+            "tone": "ذكي وحنون لكن مباشر",
+            "style": "تحفيزي ومبني على التحليل العميق",
+            "philosophy": "كل شخص يملك رياضة تناسب ذاته الداخلية، ومهمتي أن أساعده يكتشفها ويعيشها."
+        }
+    else:
+        return {
+            "name": "Sync",
+            "tone": "Intelligent, empathetic, yet direct",
+            "style": "Motivational with deep psychological insight",
+            "philosophy": "Everyone has a sport that aligns with their inner self. My mission is to help them find and live it."
+        }
 
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية", ratings=None):
     if lang not in ["العربية", "English"]:
         lang = "English"
+
+    personality = get_dynamic_personality(lang)
 
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
@@ -34,14 +41,14 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
     log_user_insight(user_id, {
         "lang": lang,
         "traits": all_analysis,
-        "personality": clean_for_logging(BASE_PERSONALITY)
+        "personality": personality
     })
 
     if lang == "العربية":
         system_prompt = f"""
-أنت {BASE_PERSONALITY['name']}، مدرب ذكي تابع لفلسفة Sports Sync.
-نبرتك: {BASE_PERSONALITY['tone']} – أسلوبك: {BASE_PERSONALITY['style']}
-فلسفتك: {BASE_PERSONALITY['philosophy']}
+أنت {personality['name']}، مدرب ذكي تابع لفلسفة Sports Sync.
+نبرتك: {personality['tone']} – أسلوبك: {personality['style']}
+فلسفتك: {personality['philosophy']}
 تحليلك يعتمد على طبقات نفسية (١ إلى ١٤١) تربط بين النية والسياق والتجربة.
 
 🎯 مهمتك الآن:
@@ -56,9 +63,9 @@ def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العر
         """
     else:
         system_prompt = f"""
-You are {BASE_PERSONALITY['name']}, a smart coach from Sports Sync philosophy.
-Tone: {BASE_PERSONALITY['tone']} – Style: {BASE_PERSONALITY['style']}
-Philosophy: {BASE_PERSONALITY['philosophy']}
+You are {personality['name']}, a smart coach from Sports Sync philosophy.
+Tone: {personality['tone']} – Style: {personality['style']}
+Philosophy: {personality['philosophy']}
 Your analysis is based on psychological layers (1–141), connecting intention, context, and personality.
 
 🎯 Your mission:
