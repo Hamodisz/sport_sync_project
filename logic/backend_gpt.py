@@ -1,3 +1,5 @@
+# logic/backend_gpt.py
+
 import os
 import openai
 import json
@@ -18,11 +20,13 @@ def generate_sport_recommendation(answers, lang="العربية"):
         user_analysis = analyze_user_from_answers(answers)
         personality = get_cached_personality(user_analysis, lang=lang)
 
-        # توليد البرومبت الكامل
+        # توليد البرومبت الكامل (مع مفاتيح محسّنة لتوافق الديناميك)
         prompt = build_main_prompt(
             analysis=user_analysis,
             answers=answers,
             personality=personality,
+            previous_recommendation=None,
+            ratings=None,
             lang=lang
         )
 
