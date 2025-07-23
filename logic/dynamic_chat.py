@@ -3,7 +3,63 @@
 import openai
 import os
 from logic.user_analysis import apply_all_analysis_layers
+from logic.prompt_engine import build_main_prompt# logic/dynamic_chat.py
+
+import openai
+import os
+import json
+from logic.user_analysis import apply_all_analysis_layers
 from logic.prompt_engine import build_main_prompt
+from logic.user_logger import log_user_insight
+from logic.memory_cache import get_cached_personality
+
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
+    try:
+        # ✅ تحليل شامل لإجابات المستخدم
+        user_analysis = apply_all_analysis_layers(str(answers))
+
+        # ✅ توليد شخصية ذكية ديناميكية أو استرجاعها من الكاش
+        personality = get_cached_personality(user_analysis, lang=lang)
+
+        # ✅ بناء برومبت التوصية الأعمق
+        prompt = build_main_prompt(
+            analysis=user_analysis,
+            answers=answers,
+            personality=personality,
+            previous_recommendation=previous_recommendation,
+            ratings=ratings,
+            lang=lang
+        )
+
+        # ✅ إرسال البرومبت إلى OpenAI
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.9
+        )
+        reply = response.choices[0].message.content.strip()
+
+        # ✅ حفظ في سجل التحليل الذكي
+        log_user_insight(
+            user_id=user_id,
+            content={
+                "language": lang,
+                "answers": answers,
+                "ratings": ratings,
+                "user_analysis": user_analysis,
+                "previous_recommendation": previous_recommendation,
+                "deeper_recommendation": reply,
+                "personality_used": personality,
+            },
+            event_type="deeper_recommendation"
+        )
+
+        return reply
+
+    except Exception as e:
+        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
 from logic.user_logger import log_user_insight
 from logic.memory_cache import get_cached_personality, save_cached_personality
 
