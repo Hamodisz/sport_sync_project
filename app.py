@@ -18,7 +18,7 @@ def load_questions(lang):
         return json.load(f)
 
 # ---------------------
-# تخزين الجلسة في CSV
+# تخزين البيانات
 # ---------------------
 def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=None):
     data = {
@@ -31,14 +31,7 @@ def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=No
         "liked": liked
     }
     df = pd.DataFrame([data])
-    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=not file_exists("data/user_sessions.csv"), encoding="utf-8")
-
-def file_exists(path):
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return True
-    except FileNotFoundError:
-        return False
+    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=not pd.read_csv("data/user_sessions.csv").shape[0], encoding="utf-8")
 
 # ---------------------
 # واجهة المستخدم
@@ -48,12 +41,13 @@ st.title("🎯 توصيتك الرياضية الذكية")
 
 # اختيار اللغة
 lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
-
 questions = load_questions(lang)
 answers = {}
 user_id = st.session_state.get("user_id", str(uuid.uuid4()))
 
-# عرض الأسئلة إذا ما كانت موجودة توصيات قديمة
+# ---------------------
+# عرض الأسئلة
+# ---------------------
 if "recommendations" not in st.session_state:
     for idx, q in enumerate(questions, 1):
         q_key = f"q{idx}"
@@ -86,7 +80,7 @@ if "recommendations" not in st.session_state:
             st.success("✅ تم إنشاء التوصيات!")
 
 # ---------------------
-# عرض التوصيات والتقييمات
+# عرض التوصيات + التقييم + الشات
 # ---------------------
 if "recommendations" in st.session_state:
     ratings = []
@@ -103,7 +97,6 @@ if "recommendations" in st.session_state:
                 rating=rating
             )
 
-    # زر التوصية الأعمق
     if st.button("🔁 أريد توصية أعمق"):
         with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
             deeper_response = start_dynamic_chat(
@@ -113,7 +106,7 @@ if "recommendations" in st.session_state:
                 user_id=st.session_state["user_id"],
                 lang=lang
             )
-            st.markdown("### 🧠 توصية بديلة أعمق بناءً على تحليل جميع اختياراتك:")
+            st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
             st.markdown(deeper_response)
 
 # ---------------------
