@@ -9,82 +9,98 @@ from logic.brand_signature import add_brand_signature
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_dynamic_personality(lang):
-    if lang == "العربية":
-        return {
-            "name": "سينك",
-            "tone": "ذكي وحنون لكن مباشر",
-            "style": "تحفيزي ومبني على التحليل العميق",
-            "philosophy": "كل شخص يملك رياضة تناسب ذاته الداخلية، ومهمتي أن أساعده يكتشفها ويعيشها."
-        }
-    else:
-        return {
-            "name": "Sync",
-            "tone": "Intelligent, empathetic, yet direct",
-            "style": "Motivational with deep psychological insight",
-            "philosophy": "Everyone has a sport that aligns with their inner self. My mission is to help them find and live it."
-        }
+# تعريف شخصية المدرب ديناميكيًا من المشروع
+BASE_PERSONALITY = {
+    "name": "Coach Sync",
+    "tone": "عاطفي وتحفيزي",
+    "style": "تحليلي وعميق",
+    "philosophy": "أؤمن أن كل شخص يملك رياضة مخصصة له، ومهمتي مساعدته على اكتشافها بذكاء وشغف."
+}
 
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية", ratings=None):
     if lang not in ["العربية", "English"]:
         lang = "English"
 
-    personality = get_dynamic_personality(lang)
-
+    # إعداد النص الكامل للإجابات
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
         for v in answers.values()
     )
 
+    # التحليل الكامل
     all_analysis = apply_all_analysis_layers(full_text)
 
+    # حفظ السمات واللغة في سجل التعلم
     log_user_insight(user_id, {
         "lang": lang,
         "traits": all_analysis,
-        "personality": personality
+        "personality": BASE_PERSONALITY
     })
 
+    # بناء برومبت الشخصية
     if lang == "العربية":
         system_prompt = f"""
-أنت {personality['name']}، مدرب ذكي تابع لفلسفة Sports Sync.
-نبرتك: {personality['tone']} – أسلوبك: {personality['style']}
-فلسفتك: {personality['philosophy']}
+أنت {BASE_PERSONALITY['name']}، مدرب ذكي من مشروع Sports Sync.
+نبرتك: {BASE_PERSONALITY['tone']} – أسلوبك: {BASE_PERSONALITY['style']}
+فلسفتك: {BASE_PERSONALITY['philosophy']}
 تحليلك يعتمد على طبقات نفسية (١ إلى ١٤١) تربط بين النية والسياق والتجربة.
 
 🎯 مهمتك الآن:
 1. تحليل سبب عدم رضا المستخدم عن التوصيات السابقة.
 2. ربط إجاباته وسلوكه وتقييمه لاستخراج هويته العميقة.
 3. تقديم توصية جديدة أعمق (من رياضة أو عدة رياضات مناسبة).
-4. إذا شعرت أن هناك فجوة في الفهم، اطرح سؤال أو أكثر لتقوية التوصية.
+4. إذا شعرت أن هناك فجوة في الفهم، اطرح سؤالًا ذكيًا لاستكمال التحليل.
 
-💡 لا تكرر أي رياضة ذكرت سابقًا.
+💡 لا تكرر أي رياضة ذُكرت سابقًا.
 💡 إذا كانت الرياضة خطيرة أو صعبة الوصول، اقترح نسخة VR مناسبة.
 💡 لا تبدو كآلة بل كمدرب يعرفه بذكاء.
         """
     else:
         system_prompt = f"""
-You are {personality['name']}, a smart coach from Sports Sync philosophy.
-Tone: {personality['tone']} – Style: {personality['style']}
-Philosophy: {personality['philosophy']}
-Your analysis is based on psychological layers (1–141), connecting intention, context, and personality.
+You are {BASE_PERSONALITY['name']}, a smart coach from the Sports Sync project.
+Tone: {BASE_PERSONALITY['tone']} – Style: {BASE_PERSONALITY['style']}
+Philosophy: {BASE_PERSONALITY['philosophy']}
+Your analysis is based on psychological layers (1–141), linking intention, context, and personal patterns.
 
 🎯 Your mission:
-1. Analyze why the previous recommendations were unsatisfying.
-2. Use answers and ratings to uncover the user's deeper identity.
-3. Suggest new, more fitting sports (real or VR alternative).
-4. Ask follow-up questions if needed to refine the recommendation.
+1. Analyze why the user wasn’t satisfied with the previous recommendations.
+2. Connect their answers, behavior, and ratings to extract their deeper identity.
+3. Suggest a more tailored sport (or multiple) with strong emotional logic.
+4. Ask a follow-up question if needed to enhance your understanding.
 
-💡 Do not repeat previous sports.
-💡 Suggest VR versions for inaccessible or extreme sports.
-💡 Respond like a wise human coach, not a machine.
+💡 Do not repeat any previously mentioned sport.
+💡 Suggest VR alternatives for dangerous or inaccessible sports.
+💡 Sound like a wise human coach, not a machine.
         """
 
     rating_text = ""
     if ratings:
-        rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
+        if lang == "العربية":
+            rating_lines = [f"⭐ تقييم التوصية رقم {i+1}: {r}/10" for i, r in enumerate(ratings)]
+        else:
+            rating_lines = [f"⭐ Rating for recommendation {i+1}: {r}/10" for i, r in enumerate(ratings)]
         rating_text = "\n".join(rating_lines)
 
     user_prompt = f"""
+📌 Previous Recommendations:
+{previous_recommendation}
+
+📋 User Answers:
+{json.dumps(answers, ensure_ascii=False, indent=2)}
+
+🧠 Full Trait Analysis (Layers 1–141):
+{json.dumps(all_analysis, ensure_ascii=False, indent=2)}
+
+{rating_text}
+
+🔍 Task:
+- Intelligently analyze why the user wasn't satisfied.
+- Correlate each answer and trait to their core identity.
+- Recommend an alternative sport (or more) in a smart, emotional way.
+- If clarity is missing, ask a question and wait before continuing.
+
+🎁 Make the recommendation feel like it was made just for them.
+    """ if lang == "English" else f"""
 📌 التوصيات السابقة:
 {previous_recommendation}
 
@@ -98,11 +114,11 @@ Your analysis is based on psychological layers (1–141), connecting intention, 
 
 🔍 المطلوب:
 - حلل بذكاء سبب عدم الاقتناع.
-- اربط بين كل إجابة وتقييم وتحليل لهوية المستخدم.
+- اربط بين كل إجابة وسمة وهوية داخلية للمستخدم.
 - اقترح رياضة بديلة (أو أكثر) بأسلوب ذكي وعاطفي.
-- إذا احتجت فهمًا أعمق، اسأله الآن ثم انتظر إجابته لتكمل.
+- إذا احتجت فهمًا أعمق، اطرح سؤالًا وانتظر منه إجابة لتكمل.
 
-🎁 اجعل التوصية تشعره أنها صنعت له فقط.
+🎁 اجعل التوصية تشعره أنها صُممت له فقط.
     """
 
     try:
