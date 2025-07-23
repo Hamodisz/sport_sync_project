@@ -1,43 +1,36 @@
-import os
-import json
-from datetime import datetime
+# logic/user_analysis.py
 
-# مسار الحفظ
-SAVE_PATH = "data/insights_log.json"
+import hashlib
 
-# دالة مساعدة لتحويل الكائنات إلى شيء قابل للتخزين JSON
-def convert_to_serializable(obj):
-    try:
-        json.dumps(obj)
-        return obj
-    except TypeError:
-        return str(obj)
+def analyze_user_from_answers(answers):
+    user_id = str(abs(hash(str(answers))))[:10]
 
-# دالة لحفظ التحليل لكل مستخدم
-def save_user_analysis(user_id, analysis):
-    # التأكد أن المسار موجود
-    os.makedirs(os.path.dirname(SAVE_PATH), exist_ok=True)
-
-    # إذا الملف موجود، نقرأه، وإذا لا نبدأ بملف جديد
-    try:
-        with open(SAVE_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = []
-
-    # نحول كل القيم إلى صيغ قابلة للتخزين
-    serializable_analysis = {
-        k: convert_to_serializable(v)
-        for k, v in analysis.items()
+    return {
+        "user_id": user_id,
+        "keywords": extract_keywords(answers),
+        "mental_traits": detect_mental_traits(answers),
+        "physical_preferences": detect_physical_preferences(answers),
+        "language": detect_language(answers),
     }
 
-    # نضيف معلومات جديدة
-    data.append({
-        "user_id": user_id,
-        "analysis": serializable_analysis,
-        "timestamp": datetime.now().isoformat()
-    })
+def extract_keywords(answers):
+    text = json.dumps(answers, ensure_ascii=False)
+    return [word for word in ["تفكير", "طاقة", "استكشاف", "هدوء"] if word in text]
 
-    # نحفظ الملف
-    with open(SAVE_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+def detect_mental_traits(answers):
+    traits = []
+    for val in answers.values():
+        if isinstance(val, str) and "عقلي" in val:
+            traits.append("Strategic thinker")
+    return traits
+
+def detect_physical_preferences(answers):
+    prefs = []
+    for val in answers.values():
+        if isinstance(val, list):
+            if any("ماء" in v for v in val):
+                prefs.append("Water-based sports")
+    return prefs
+
+def detect_language(answers):
+    return "العربية"
