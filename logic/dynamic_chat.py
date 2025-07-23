@@ -6,7 +6,6 @@ from logic.user_analysis import apply_all_analysis_layers
 from logic.prompt_engine import build_main_prompt
 from logic.user_logger import log_user_insight
 from logic.memory_cache import get_cached_personality
-from logic.chat_personality import BASE_PERSONALITY  # fallback
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -15,8 +14,13 @@ def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang=
         # تحليل شامل لإجابات المستخدم
         user_analysis = apply_all_analysis_layers(str(answers))
 
-        # محاولة جلب الشخصية من الكاش، وإن فشل نستخدم الشخصية الافتراضية
-        personality = get_cached_personality(user_analysis, lang=lang) or BASE_PERSONALITY
+        # توليد شخصية ذكية ديناميكية بناء على اللغة والتحليل
+        personality = get_cached_personality(user_analysis, lang=lang) or {
+            "name": "Sports Sync",
+            "tone": "تحفيزي وواقعي",
+            "style": "يستخدم التعاطف والمنطق معًا لإقناع المستخدم",
+            "philosophy": "الرياضة ليست فقط لتحسين الجسم، بل لفهم النفس واكتشاف القدرات الداخلية."
+        }
 
         # توليد البرومبت العاطفي الذكي
         prompt = build_main_prompt(
