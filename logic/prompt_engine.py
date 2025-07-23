@@ -1,18 +1,21 @@
-# logic/prompt_engine.py
-
 import json
 
 def build_main_prompt(
     analysis,
-    answers=None,
-    personality=None,
+    answers,
+    personality,
+    lang="العربية",
     previous_recommendation=None,
-    ratings=None,
-    lang="العربية"
+    ratings=None
 ):
+    # نحدد هل هذه توصية أولى أم توصية أعمق
+    is_deep = previous_recommendation is not None and ratings is not None
+
     if lang == "العربية":
-        return f"""
-أنا Sports Sync، رفيقك الذكي في رحلتك لاكتشاف الرياضة الأنسب لك.
+        if not is_deep:
+            # التوصية الأولى
+            return f"""
+أنا {personality['name']}، رفيقك الذكي في رحلتك لاكتشاف الرياضة الأنسب لك.
 
 ✅ لقد قرأت تحليلك الكامل وتعرّفت على طبقاتك النفسية والسلوكية. هذه رؤيتي لك:
 
@@ -34,27 +37,78 @@ def build_main_prompt(
 ✅ وفي النهاية، أضف هذا السطر:
 "وإن شعرت أن هذه الرياضات لا تعبر عنك تمامًا، اضغط على زر (لم تعجبني التوصية) لأتعرف عليك أكثر، وأبحث لك عن ما يناسبك فعلًا."
 """
-    else:
-        return f"""
-I’m Sports Sync – your intelligent companion in the journey of discovering your ideal sport.
+        else:
+            # التوصية الأعمق بناء على التقييمات السابقة
+            return f"""
+أنا {personality['name']}، مازلت معك في رحلتك لاكتشاف الرياضة التي تعكس جوهرك.
 
-✅ I’ve already analyzed your psychological and behavioral layers. Here’s what I see:
+✅ هذه نظرة سريعة على تحليلك:
+{json.dumps(analysis, ensure_ascii=False, indent=2)}
 
-🧠 Extracted Traits:
-{json.dumps(analysis, indent=2)}
+📉 التوصيات السابقة:
+{previous_recommendation}
 
-🎯 My mission now:
-I’ll suggest 3 completely different sports – each tied deeply to a specific trait in your personality.
-Each suggestion will begin with a compelling emotional reason, and explain why the sport truly fits who you are.
-If the sport is rare or inaccessible, I’ll offer a VR alternative that captures the same essence.
+🧪 تقييماتك:
+{ratings}
 
-💡 These won’t be generic. Each one is crafted for *you*.
+🎯 مهمتي الآن:
+تحليل أسباب عدم رضاك، والعودة بخيارات أعمق، أغرب، وربما أقرب إليك من أي وقت مضى.
+سأعيد التفكير بناءً على مشاعرك، لأن هدفنا مو بس رياضة... هدفنا شي *يليق بك فعلاً*.
 
-📌 Format your response like this:
-1. Sport – explanation
+📌 أجب فقط بهذا الشكل:
+1. رياضة – السبب الجديد (مبني على التحليل + التقييمات)
 2. ...
 3. ...
 
-✅ End your message with:
-"If you feel these don’t truly reflect who you are, click 'Not satisfied' and I’ll explore more to find what truly fits you."
+✅ وفي الختام، أضف سطرًا يقول:
+"إذا شعرت أني اقتربت، لكن لم أصل بعد، دعني أتعلم أكثر، وأبحث عن خيار خارج الصندوق."
+"""
+
+    else:
+        # English version
+        if not is_deep:
+            return f"""
+I'm {personality['name']}, your intelligent companion in discovering your ideal sport.
+
+✅ I’ve reviewed your deep psychological and behavioral layers. Here’s what I see:
+
+🔍 Extracted Traits:
+{json.dumps(analysis, indent=2)}
+
+🎯 Now, I’ll suggest 3 very different sports – each based on your traits.
+Each suggestion will start with a personal emotional reason and explain why it fits.
+If a sport is rare or hard to access, I’ll offer a VR alternative.
+
+📌 Respond like this only:
+1. Sport – reason
+2. ...
+3. ...
+
+✅ End with:
+"If these don’t fully express who I am, I’ll ask for deeper insight and a new search."
+"""
+        else:
+            return f"""
+I'm still here, {personality['name']} – ready to go deeper into your sport journey.
+
+✅ Summary of your traits:
+{json.dumps(analysis, indent=2)}
+
+📉 Previous suggestions:
+{previous_recommendation}
+
+🧪 Your feedback ratings:
+{ratings}
+
+🎯 My mission now:
+Learn from your reactions. Not just suggest… but evolve the thinking.
+This time, each sport will be emotionally deeper and aligned with who you truly are.
+
+📌 Format your reply:
+1. Sport – deeper reasoning
+2. ...
+3. ...
+
+✅ End with:
+"If this still isn't it, I’m learning… let me dig even deeper and search again."
 """
