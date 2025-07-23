@@ -6,7 +6,6 @@ from datetime import datetime
 
 from logic.backend_gpt import generate_sport_recommendation
 from logic.dynamic_chat import start_dynamic_chat
-from logic.chat_personality import get_chat_personality
 
 # ---------------------
 # تحميل الأسئلة
@@ -40,7 +39,6 @@ st.title("🎯 توصيتك الرياضية الذكية")
 
 # اختيار اللغة
 lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
-
 questions = load_questions(lang)
 answers = {}
 user_id = st.session_state.get("user_id", str(uuid.uuid4()))
@@ -65,6 +63,7 @@ if "recommendations" not in st.session_state:
                     answers[q_key] = [answers[q_key], custom_input]
 
     answers["custom_input"] = st.text_area("✏️ هل هناك شيء تحب إضافته؟", "")
+    st.session_state["user_id"] = user_id
 
     if st.button("🔍 احصل على توصيتي الرياضية"):
         with st.spinner("جاري تحليل إجاباتك..."):
@@ -74,7 +73,6 @@ if "recommendations" not in st.session_state:
 
             st.session_state["recommendations"] = recommendations
             st.session_state["answers"] = answers
-            st.session_state["user_id"] = user_id
             st.success("✅ تم إنشاء التوصيات!")
 
 # ---------------------
