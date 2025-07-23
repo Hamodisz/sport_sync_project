@@ -18,9 +18,7 @@ from logic.user_logger import log_user_insight
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# -------------------------
 # تنظيف الكائن من الدوال قبل التخزين
-# -------------------------
 def clean_for_logging(obj):
     if isinstance(obj, dict):
         return {k: clean_for_logging(v) for k, v in obj.items() if not callable(v)}
@@ -30,20 +28,16 @@ def clean_for_logging(obj):
         return str(obj)
     return obj
 
-# -------------------------
 # تحليل الطبقات
-# -------------------------
 def apply_all_analysis_layers(full_text):
     return {
         "traits_1_40": apply_layers_1_40(full_text),
         "traits_41_80": apply_layers_41_80(full_text),
         "traits_81_100": apply_layers_81_100(full_text),
-        "traits_101_141": apply_layers_101_141(full_text),  # ✅ تم التعديل هنا
+        "traits_101_141": apply_layers_101_141(full_text),  # ✅ مهم
     }
 
-# -------------------------
 # تجهيز النص الكامل من الإجابات
-# -------------------------
 def format_answers_for_prompt(answers):
     parts = []
     for i in range(20):
@@ -57,21 +51,19 @@ def format_answers_for_prompt(answers):
         parts.append(f"Extra: {extra}")
     return '\n'.join(parts)
 
-# -------------------------
-# توصية رياضية ذكية
-# -------------------------
+# توليد التوصية الرياضية الذكية
 def generate_sport_recommendation(answers, lang="العربية"):
     user_id = answers.get("user_id", "unknown")
     full_text = format_answers_for_prompt(answers)
 
-    # محاولة تحميل التحليل من الذاكرة المؤقتة
+    # تحميل التحليل من الذاكرة المؤقتة أو تنفيذه
     analysis = load_cached_analysis(user_id)
     if not analysis:
         analysis = apply_all_analysis_layers(full_text)
         save_user_analysis(user_id, analysis)
         save_cached_analysis(user_id, analysis)
 
-    # حفظ اللغة والسمات للذكاء المستمر (مع تنظيف الشخصية)
+    # حفظ سجل الذكاء المستمر
     log_user_insight(user_id, {
         "lang": lang,
         "traits": analysis,
@@ -93,10 +85,13 @@ def generate_sport_recommendation(answers, lang="العربية"):
         print("❌ خطأ أثناء الاتصال بـ OpenAI:", str(e))
         return ["عذرًا، حدث خطأ أثناء توليد التوصية. يرجى المحاولة لاحقًا."]
 
+    # استخراج التوصيات المفصولة
     recommendations = []
     for line in content.split("\n"):
         if line.strip().startswith(("1.", "2.", "3.")):
             recommendations.append(line.strip())
+
+    # fallback: إذا النظام ما فصلها
     if len(recommendations) < 3:
         recommendations = [content]
 
