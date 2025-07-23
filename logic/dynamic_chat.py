@@ -10,27 +10,33 @@ from logic.brand_signature import add_brand_signature
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# تنظيف الشخصية من القيم غير القابلة للتسلسل
+def clean_for_logging(obj):
+    if isinstance(obj, dict):
+        return {k: clean_for_logging(v) for k, v in obj.items() if not callable(v)}
+    elif isinstance(obj, list):
+        return [clean_for_logging(v) for v in obj if not callable(v)]
+    elif callable(obj):
+        return str(obj)
+    return obj
+
 def start_dynamic_chat(answers, previous_recommendation, user_id, lang="العربية", ratings=None):
     if lang not in ["العربية", "English"]:
         lang = "English"
 
-    # إعداد النص الكامل للإجابات
     full_text = ' '.join(
         ' / '.join(v) if isinstance(v, list) else str(v)
         for v in answers.values()
     )
 
-    # التحليل الكامل
     all_analysis = apply_all_analysis_layers(full_text)
 
-    # حفظ السمات واللغة في سجل التعلم
     log_user_insight(user_id, {
         "lang": lang,
         "traits": all_analysis,
-        "personality": BASE_PERSONALITY
+        "personality": clean_for_logging(BASE_PERSONALITY)
     })
 
-    # بناء برومبت الشخصية
     if lang == "العربية":
         system_prompt = f"""
 أنت {BASE_PERSONALITY['name']}، مدرب ذكي تابع لفلسفة Sports Sync.
