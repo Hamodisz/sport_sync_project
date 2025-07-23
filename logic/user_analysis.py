@@ -1,36 +1,24 @@
 # logic/user_analysis.py
 
-import hashlib
+from logic.analysis_layers_1_40 import apply_layers_1_40
+from logic.analysis_layers_41_80 import apply_layers_41_80
+from logic.analysis_layers_81_100 import apply_layers_81_100
+from logic.analysis_layers_101_141 import apply_layers_101_141
 
+# -------------------------
+# تحليل جميع الطبقات دفعة واحدة
+# -------------------------
 def analyze_user_from_answers(answers):
-    user_id = str(abs(hash(str(answers))))[:10]
+    full_text = ""
+    for key, val in answers.items():
+        if isinstance(val, list):
+            full_text += " / ".join(val) + " "
+        else:
+            full_text += str(val) + " "
 
     return {
-        "user_id": user_id,
-        "keywords": extract_keywords(answers),
-        "mental_traits": detect_mental_traits(answers),
-        "physical_preferences": detect_physical_preferences(answers),
-        "language": detect_language(answers),
+        "traits_1_40": apply_layers_1_40(full_text),
+        "traits_41_80": apply_layers_41_80(full_text),
+        "traits_81_100": apply_layers_81_100(full_text),
+        "traits_101_141": apply_layers_101_141(full_text),
     }
-
-def extract_keywords(answers):
-    text = json.dumps(answers, ensure_ascii=False)
-    return [word for word in ["تفكير", "طاقة", "استكشاف", "هدوء"] if word in text]
-
-def detect_mental_traits(answers):
-    traits = []
-    for val in answers.values():
-        if isinstance(val, str) and "عقلي" in val:
-            traits.append("Strategic thinker")
-    return traits
-
-def detect_physical_preferences(answers):
-    prefs = []
-    for val in answers.values():
-        if isinstance(val, list):
-            if any("ماء" in v for v in val):
-                prefs.append("Water-based sports")
-    return prefs
-
-def detect_language(answers):
-    return "العربية"
