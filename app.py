@@ -4,6 +4,7 @@ import streamlit as st
 import json
 import uuid
 import pandas as pd
+import os
 from datetime import datetime
 
 from logic.backend_gpt import generate_sport_recommendation
@@ -21,6 +22,9 @@ def load_questions(lang):
 # تخزين البيانات
 # ---------------------
 def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=None):
+    path = "data/user_sessions.csv"
+    os.makedirs("data", exist_ok=True)
+
     data = {
         "user_id": user_id,
         "timestamp": datetime.now().isoformat(),
@@ -31,7 +35,14 @@ def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=No
         "liked": liked
     }
     df = pd.DataFrame([data])
-    df.to_csv("data/user_sessions.csv", mode="a", index=False, header=not pd.read_csv("data/user_sessions.csv").shape[0], encoding="utf-8")
+
+    # فحص إذا الملف موجود ومش فاضي
+    try:
+        file_exists = os.path.exists(path) and pd.read_csv(path).shape[0] > 0
+    except pd.errors.EmptyDataError:
+        file_exists = False
+
+    df.to_csv(path, mode="a", index=False, header=not file_exists, encoding="utf-8")
 
 # ---------------------
 # واجهة المستخدم
