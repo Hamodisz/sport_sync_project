@@ -2,72 +2,41 @@
 
 import os
 import openai
-import json
-
-from logic.prompt_engine import build_main_prompt
+from logic.user_analysis import apply_all_analysis_layers
+from logic.memory_cache import get_cached_personality, save_cached_personality
 from logic.user_logger import log_user_insight
-from logic.memory_cache import get_cached_personality
-from logic.user_analysis import analyze_user_from_answers
+from logic.prompt_engine import build_main_prompt_from_data  # ← هذه دالة بديلة سيتم شرحها تحت
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# -------------------------------
-# توليد التوصيات الرياضية الذكية
-# -------------------------------
 def generate_sport_recommendation(answers, lang="العربية"):
     try:
-        user_analysis = analyze_user_from_answers(answers)
-        personality = get_cached_personality(user_analysis, lang=lang)
+        analysis = apply_all_analysis_layers(str(answers))
+        personality = get_cached_personality(analysis, lang)
+        if not personality:
+            personality = {
+                "name": "مدرب Sports Sync" if lang == "العربية" else "Coach Sports Sync",
+                "tone": "هادئ، صادق" if lang == "العربية" else "Calm and sincere",
+                "style": "تحليل نفسي بأسلوب إنساني" if lang == "العربية" else "Human-centered psychological tone",
+                "philosophy": "الرياضة أداة لاكتشاف الذات" if lang == "العربية" else "Sport is a tool for self-discovery"
+            }
+            save_cached_personality(f"{lang}_{hash(str(analysis))}", personality)
 
-        prompt = build_main_prompt(
-            analysis=user_analysis,
-            answers=answers,
-            personality=personality,
-            previous_recommendation=None,
-            ratings=None,
-            lang=lang
-        )
+        prompt = build_main_prompt_from_data(analysis, answers, personality, [], "", lang)
 
-        completion = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.9,
+            temperature=0.9
         )
+        reply = response.choices[0].message.content.strip()
 
-        full_response = completion.choices[0].message.content.strip()
-        recs = split_recommendations(full_response)
+        log_user_insight(user_id="unknown", content={
+            "answers": answers,
+            "language": lang,
+            "recommendation": reply
+        }, event_type="initial_recommendation")
 
-        # 🧠 نحفظ التوصيات في اللوج
-        log_user_insight(
-            user_id="anonymous",
-            content={
-                "answers": answers,
-                "language": lang,
-                "recommendations": recs,
-                "user_analysis": user_analysis,
-                "personality_used": personality,
-            },
-            event_type="initial_recommendation"
-        )
-
-        return recs
-
+        return reply
     except Exception as e:
-        return [f"❌ خطأ أثناء توليد التوصية: {str(e)}"]
-
-# -------------------------------
-# تقسيم التوصيات من الرد الكامل
-# -------------------------------
-def split_recommendations(full_text):
-    recs = []
-    lines = full_text.splitlines()
-    buffer = []
-    for line in lines:
-        if "التوصية" in line or "Recommendation" in line:
-            if buffer:
-                recs.append("\n".join(buffer).strip())
-                buffer = []
-        buffer.append(line)
-    if buffer:
-        recs.append("\n".join(buffer).strip())
-    return recs[:3]
+        return f"❌ خطأ: {e}"
