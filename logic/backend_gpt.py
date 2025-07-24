@@ -44,14 +44,15 @@ def generate_sport_recommendation(answers, lang="العربية"):
 
         # حفظ في اللوج
        log_user_insight(
-    content="initial_recommendation",  # أو أي نوع محتوى مناسب
-    data={
+    user_id=user_id,
+    content={
         "answers": answers,
         "language": lang,
         "recommendations": recs,
         "user_analysis": user_analysis,
         "personality_used": personality,
-    }
+    },
+    event_type="initial_recommendation"
 )
 
         return recs
