@@ -1,74 +1,43 @@
 # logic/memory_cache.py
 
-import os
 import json
+import os
 
-CACHE_DIR = "cache"
+CACHE_DIR = "data/user_sessions_cache"
+
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# -------------------------
-# مسارات التخزين
-# -------------------------
-def _get_analysis_path(user_id):
-    return os.path.join(CACHE_DIR, f"{user_id}_analysis.json")
+def get_cache_path(user_id):
+    return os.path.join(CACHE_DIR, f"{user_id}.json")
 
-def _get_personality_path(user_id):
-    return os.path.join(CACHE_DIR, f"{user_id}_personality.json")
-
-# -------------------------
-# تحميل وحفظ التحليل
-# -------------------------
-def load_cached_analysis(user_id):
-    path = _get_analysis_path(user_id)
+def get_cached_analysis(user_id):
+    path = get_cache_path(user_id)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+            data = json.load(f)
+            return data.get("analysis", "")
+    return ""
 
-def save_cached_analysis(user_id, analysis):
-    path = _get_analysis_path(user_id)
+def save_cached_analysis(user_id, analysis_data):
+    path = get_cache_path(user_id)
+    data = {"analysis": analysis_data}
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(analysis, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-# -------------------------
-# تحميل وحفظ شخصية المدرب
-# -------------------------
-def get_cached_personality(user_analysis, lang="العربية"):
-    # توليد اسم مميز حسب اللغة والسمات
-    key = f"{lang}_{hash(json.dumps(user_analysis, sort_keys=True))}"
-    path = _get_personality_path(key)
+def get_cached_personality(user_id):
+    path = get_cache_path(user_id)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return build_dynamic_personality(user_analysis, lang)
+            data = json.load(f)
+            return data.get("personality", {})
+    return {}
 
-def save_cached_personality(key, personality):
-    path = _get_personality_path(key)
+def save_cached_personality(user_id, personality_data):
+    path = get_cache_path(user_id)
+    existing = {}
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            existing = json.load(f)
+    existing["personality"] = personality_data
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(personality, f, ensure_ascii=False, indent=2)
-
-# -------------------------
-# بناء ديناميكي لشخصية المدرب
-# -------------------------
-def build_dynamic_personality(user_analysis, lang="العربية"):
-    # يتم توليد الشخصية بناءً على التحليل
-    # (يمكن تعديل هذا النموذج لاحقًا للتخصيص العميق)
-    if lang == "العربية":
-        personality = {
-            "name": "مدرب Sports Sync",
-            "tone": "حنون لكن مباشر",
-            "style": "عاطفي، عميق، واقعي",
-            "philosophy": "نبحث عن الرياضة التي تكشف جوهرك وتمنحك معنى، مش مجرد نشاط عابر."
-        }
-    else:
-        personality = {
-            "name": "Coach Sports Sync",
-            "tone": "Caring yet Direct",
-            "style": "Emotional, Deep, Practical",
-            "philosophy": "We search for the sport that brings out your core—not just another activity."
-        }
-
-    # تخزينها في الذاكرة
-    key = f"{lang}_{hash(json.dumps(user_analysis, sort_keys=True))}"
-    save_cached_personality(key, personality)
-    return personality
+        json.dump(existing, f, ensure_ascii=False, indent=2)
