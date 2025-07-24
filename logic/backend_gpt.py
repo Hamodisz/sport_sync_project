@@ -43,13 +43,16 @@ def generate_sport_recommendation(answers, lang="العربية"):
         recs = split_recommendations(full_response)
 
         # حفظ في اللوج
-        log_user_insight({
-            "answers": answers,
-            "language": lang,
-            "recommendations": recs,
-            "user_analysis": user_analysis,
-            "personality_used": personality,
-        })
+       log_user_insight(
+    content="initial_recommendation",  # أو أي نوع محتوى مناسب
+    data={
+        "answers": answers,
+        "language": lang,
+        "recommendations": recs,
+        "user_analysis": user_analysis,
+        "personality_used": personality,
+    }
+)
 
         return recs
     except Exception as e:
