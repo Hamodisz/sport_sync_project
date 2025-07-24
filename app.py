@@ -1,155 +1,95 @@
-# app.py
+# logic/dynamic_chat.py
 
-import streamlit as st
-import json
-import uuid
-import pandas as pd
 import os
-from datetime import datetime
+import openai
+from logic.user_analysis import apply_all_analysis_layers
+from logic.prompt_engine import build_main_prompt
+from logic.user_logger import log_user_insight
+from logic.memory_cache import get_cached_personality, save_cached_personality
 
-from logic.backend_gpt import generate_sport_recommendation
-from logic.dynamic_chat import start_dynamic_chat
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ---------------------
-# تحميل الأسئلة
-# ---------------------
-def load_questions(lang):
-    path = f"questions/{'arabic_questions.json' if lang == 'العربية' else 'english_questions.json'}"
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-# ---------------------
-# تخزين البيانات
-# ---------------------
-def save_user_data(user_id, lang, answers, recommendation, rating=None, liked=None):
-    path = "data/user_sessions.csv"
-    os.makedirs("data", exist_ok=True)
-
-    data = {
-        "user_id": user_id,
-        "timestamp": datetime.now().isoformat(),
-        "language": lang,
-        "answers": json.dumps(answers, ensure_ascii=False),
-        "recommendation": recommendation,
-        "rating": rating,
-        "liked": liked
-    }
-    df = pd.DataFrame([data])
-
+# -----------------------------
+# بدء المحادثة الديناميكية
+# -----------------------------
+def continue_dynamic_chat(messages, user_id, lang="العربية"):
     try:
-        file_exists = os.path.exists(path) and pd.read_csv(path).shape[0] > 0
-    except pd.errors.EmptyDataError:
-        file_exists = False
+        # استخراج إجابات المستخدم من أول رسالة
+        answers = extract_answers_from_messages(messages)
+        user_analysis = apply_all_analysis_layers(str(answers))
 
-    df.to_csv(path, mode="a", index=False, header=not file_exists, encoding="utf-8")
+        # توليد أو جلب الشخصية الذكية
+        personality = get_cached_personality(user_analysis, lang)
+        if not personality:
+            personality = build_dynamic_personality(user_analysis, lang)
+            save_cached_personality(f"{lang}_{hash(str(user_analysis))}", personality)
 
-# ---------------------
-# واجهة المستخدم
-# ---------------------
-st.set_page_config(page_title="توصية رياضية", layout="centered")
-st.title("🎯 توصيتك الرياضية الذكية")
-
-lang = st.radio("اختر اللغة / Choose Language", ["العربية", "English"])
-questions = load_questions(lang)
-answers = {}
-user_id = st.session_state.get("user_id", str(uuid.uuid4()))
-
-# ---------------------
-# عرض الأسئلة
-# ---------------------
-if "recommendations" not in st.session_state:
-    for idx, q in enumerate(questions, 1):
-        q_key = f"q{idx}"
-        if q["type"] == "multiple":
-            selected = st.multiselect(q["question"], q["options"], key=q_key)
-            answers[q_key] = selected
-        else:
-            selected = st.radio(q["question"], q["options"], key=q_key)
-            answers[q_key] = selected
-
-        if q.get("free", False) or q.get("allow_custom", False):
-            custom_input = st.text_input("📝 إجابة أخرى (اختياري):", key=f"{q_key}_custom")
-            if custom_input:
-                if isinstance(answers[q_key], list):
-                    answers[q_key].append(custom_input)
-                else:
-                    answers[q_key] = [answers[q_key], custom_input]
-
-    answers["custom_input"] = st.text_area("✏ هل هناك شيء تحب إضافته؟", "")
-
-    if st.button("🔍 احصل على توصيتي الرياضية"):
-        with st.spinner("جاري تحليل إجاباتك..."):
-            recommendations = generate_sport_recommendation(answers, lang)
-            if not isinstance(recommendations, list):
-                recommendations = [recommendations]
-
-            st.session_state["recommendations"] = recommendations
-            st.session_state["answers"] = answers
-            st.session_state["user_id"] = user_id
-            st.success("✅ تم إنشاء التوصيات!")
-
-# ---------------------
-# عرض التوصيات + التقييم + الشات
-# ---------------------
-if "recommendations" in st.session_state:
-    ratings = []
-    for i, rec in enumerate(st.session_state["recommendations"]):
-        with st.expander(f"🎽 التوصية رقم {i+1}"):
-            st.markdown(rec)
-            rating = st.slider(f"ما مدى رضاك عن التوصية رقم {i+1}؟", 1, 10, 7, key=f"rating_{i}")
-            ratings.append(rating)
-            save_user_data(
-                st.session_state["user_id"],
-                lang,
-                st.session_state["answers"],
-                rec,
-                rating=rating
-            )
-
-    # حالة متابعة المحادثة الديناميكية
-    if "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = []
-    if "awaiting_answer" not in st.session_state:
-        st.session_state["awaiting_answer"] = False
-
-    # زر بدء التوصية الأعمق
-    if not st.session_state["awaiting_answer"] and st.button("🔁 أريد توصية أعمق"):
-        with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
-            result = start_dynamic_chat(
-                answers=st.session_state["answers"],
-                previous_recommendation="\n".join(st.session_state["recommendations"]),
-                ratings=ratings,
-                user_id=st.session_state["user_id"],
+        # بناء أول برومبت فقط لو هي أول رسالة
+        if len(messages) == 1:
+            full_prompt = build_main_prompt(
+                analysis=user_analysis,
+                answers=answers,
+                personality=personality,
+                previous_recommendation=None,
+                ratings=None,
                 lang=lang
             )
-            st.session_state["chat_history"].append(("🤖", result["reply"]))
-            st.session_state["awaiting_answer"] = result["awaiting_answer"]
+            messages = [{"role": "user", "content": full_prompt}]
 
-    # عرض المحادثة
-    if st.session_state["chat_history"]:
-        st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
-        for sender, msg in st.session_state["chat_history"]:
-            st.markdown(f"{sender}: {msg}")
+        # إرسال إلى OpenAI
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            temperature=0.85,
+        )
 
-    # لو فيه سؤال مفتوح
-    if st.session_state["awaiting_answer"]:
-        user_reply = st.text_input("✏ ردك:", key="user_followup")
-        if st.button("📨 إرسال الرد"):
-            # ترجع نكمل المحادثة بنفس الطريقة
-            followup_result = start_dynamic_chat(
-                answers={**st.session_state["answers"], "followup_reply": user_reply},
-                previous_recommendation="\n".join(st.session_state["recommendations"]),
-                ratings=ratings,
-                user_id=st.session_state["user_id"],
-                lang=lang
-            )
-            st.session_state["chat_history"].append(("🧑", user_reply))
-            st.session_state["chat_history"].append(("🤖", followup_result["reply"]))
-            st.session_state["awaiting_answer"] = followup_result["awaiting_answer"]
+        reply = response.choices[0].message.content.strip()
+        messages.append({"role": "assistant", "content": reply})
 
-# ---------------------
-# روابط المشاركة
-# ---------------------
-st.markdown("---")
-st.markdown(f"[🔗 رابط عام لمشاركة النتيجة](https://sport-sync.onrender.com/share/{user_id})")
-st.markdown(f"[📨 دعوة صديق لتجربة الاختبار](https://sport-sync.onrender.com)")
+        # حفظ التفاعل
+        log_user_insight(
+            user_id=user_id,
+            content={
+                "language": lang,
+                "full_conversation": messages,
+                "last_user_message": messages[-2]["content"] if len(messages) >= 2 else None,
+                "last_ai_reply": reply,
+            },
+            event_type="chat_interaction"
+        )
+
+        return reply, messages
+
+    except Exception as e:
+        return f"❌ حدث خطأ: {str(e)}", messages
+
+# -----------------------------
+# توليد شخصية الشات الديناميكية
+# -----------------------------
+def build_dynamic_personality(user_analysis, lang="العربية"):
+    if lang == "العربية":
+        return {
+            "name": "مدرب Sports Sync",
+            "tone": "هادئ، عاطفي، وصادق",
+            "style": "تحليل نفسي بأسلوب إنساني",
+            "philosophy": "الرياضة وسيلة لاكتشاف الذات، لا فقط لتحسين المظهر."
+        }
+    else:
+        return {
+            "name": "Coach Sports Sync",
+            "tone": "Calm, Emotional, and Honest",
+            "style": "Deep psychological tone with empathy",
+            "philosophy": "Sport is a tool to understand yourself, not just your body."
+        }
+
+# -----------------------------
+# استخراج الإجابات من أول رسالة
+# -----------------------------
+def extract_answers_from_messages(messages):
+    for msg in messages:
+        if "answers" in msg.get("content", ""):
+            try:
+                return eval(msg["content"].split("answers=")[-1].strip())
+            except:
+                continue
+    return {}
