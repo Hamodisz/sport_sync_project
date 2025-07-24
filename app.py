@@ -104,20 +104,33 @@ if "recommendations" in st.session_state:
                 rating=rating
             )
 
-    if st.button("🔁 أريد توصية أعمق"):
-        if len(ratings) == 0:
-            st.error("يرجى تقييم التوصيات أولاً قبل طلب توصية أعمق.")
-        else:
-            with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
-                deeper_response = start_dynamic_chat(
-                    answers=st.session_state["answers"],
-                    previous_recommendation="\n".join(st.session_state["recommendations"]),
-                    ratings=ratings,
-                    user_id=st.session_state["user_id"],
-                    lang=lang
-                )
-                st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
-                st.markdown(deeper_response)
+    if st.button("🔁 أريد توصية أعمق") or st.session_state.get("pending_question"):
+        with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
+            deeper_response = start_dynamic_chat(
+                answers=st.session_state["answers"],
+                previous_recommendation="\n".join(st.session_state["recommendations"]),
+                ratings=ratings,
+                user_id=st.session_state["user_id"],
+                lang=lang
+            )
+            st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
+            st.markdown(deeper_response)
+
+            # إذا الرد يحتوي سؤال في نهايته، نخزنه ونطلب من المستخدم يرد
+            if deeper_response.strip().endswith("؟"):
+                st.session_state["pending_question"] = deeper_response
+            else:
+                st.session_state["pending_question"] = None
+
+# ---------------------
+# متابعة الشات الديناميكي
+# ---------------------
+if st.session_state.get("pending_question"):
+    user_reply = st.text_input("✏ ردك على السؤال السابق:", key="user_followup_reply")
+    if user_reply:
+        st.markdown("🔄 جاري إرسال ردك للمدرب وتحليل الإجابة...")
+        # هنا يتم الإرسال لاحقًا في الإصدار التفاعلي الثاني
+        st.session_state["pending_question"] = None
 
 # ---------------------
 # روابط المشاركة
