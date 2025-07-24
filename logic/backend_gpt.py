@@ -14,13 +14,13 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # -------------------------------
 # توليد التوصيات الرياضية الذكية
 # -------------------------------
-def generate_sport_recommendation(answers, lang="العربية"):
+def generate_sport_recommendation(answers, lang="العربية", user_id="unknown_user"):
     try:
         # تحليل المستخدم من الإجابات
         user_analysis = analyze_user_from_answers(answers)
         personality = get_cached_personality(user_analysis, lang=lang)
 
-        # توليد البرومبت الكامل (مع مفاتيح محسّنة لتوافق الديناميك)
+        # توليد البرومبت الكامل
         prompt = build_main_prompt(
             analysis=user_analysis,
             answers=answers,
@@ -39,21 +39,21 @@ def generate_sport_recommendation(answers, lang="العربية"):
 
         full_response = completion.choices[0].message.content.strip()
 
-        # تقسيم التوصيات (يجب أن يحتوي الرد على 3 توصيات مفصولة بعناوين واضحة)
+        # تقسيم التوصيات (3 فقط)
         recs = split_recommendations(full_response)
 
-        # حفظ في اللوج
-       log_user_insight(
-    user_id=user_id,
-    content={
-        "answers": answers,
-        "language": lang,
-        "recommendations": recs,
-        "user_analysis": user_analysis,
-        "personality_used": personality,
-    },
-    event_type="initial_recommendation"
-)
+        # حفظ في سجل التحليل الذكي
+        log_user_insight(
+            user_id=user_id,
+            content={
+                "answers": answers,
+                "language": lang,
+                "recommendations": recs,
+                "user_analysis": user_analysis,
+                "personality_used": personality,
+            },
+            event_type="initial_recommendation"
+        )
 
         return recs
     except Exception as e:
@@ -63,7 +63,6 @@ def generate_sport_recommendation(answers, lang="العربية"):
 # تقسيم التوصيات من الرد الكامل
 # -------------------------------
 def split_recommendations(full_text):
-    # طريقة ذكية لتقسيم النص إلى 3 أجزاء
     recs = []
     lines = full_text.splitlines()
     buffer = []
