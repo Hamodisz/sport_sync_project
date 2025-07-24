@@ -3,90 +3,28 @@
 import openai
 import os
 from logic.user_analysis import apply_all_analysis_layers
-from logic.prompt_engine import build_main_prompt# logic/dynamic_chat.py
-
-import openai
-import os# logic/dynamic_chat.py
-
-import openai
-import os
-from logic.user_analysis import apply_all_analysis_layers
-from logic.prompt_engine import build_main_prompt# logic/dynamic_chat.py
-
-import openai
-import os
-import json
-from logic.user_analysis import apply_all_analysis_layers
 from logic.prompt_engine import build_main_prompt
-from logic.user_logger import log_user_insight
-from logic.memory_cache import get_cached_personality
-
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
-    try:
-        # ✅ تحليل شامل لإجابات المستخدم
-        user_analysis = apply_all_analysis_layers(str(answers))
-
-        # ✅ توليد شخصية ذكية ديناميكية أو استرجاعها من الكاش
-        personality = get_cached_personality(user_analysis, lang=lang)
-
-        # ✅ بناء برومبت التوصية الأعمق
-        prompt = build_main_prompt(
-            analysis=user_analysis,
-            answers=answers,
-            personality=personality,
-            previous_recommendation=previous_recommendation,
-            ratings=ratings,
-            lang=lang
-        )
-
-        # ✅ إرسال البرومبت إلى OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.9
-        )
-        reply = response.choices[0].message.content.strip()
-
-        # ✅ حفظ في سجل التحليل الذكي
-        log_user_insight(
-            user_id=user_id,
-            content={
-                "language": lang,
-                "answers": answers,
-                "ratings": ratings,
-                "user_analysis": user_analysis,
-                "previous_recommendation": previous_recommendation,
-                "deeper_recommendation": reply,
-                "personality_used": personality,
-            },
-            event_type="deeper_recommendation"
-        )
-
-        return reply
-
-    except Exception as e:
-        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
 from logic.user_logger import log_user_insight
 from logic.memory_cache import get_cached_personality, save_cached_personality
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# -------------------------------
+# بدء المحادثة الديناميكية
+# -------------------------------
 def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
     try:
-        # تحليل شامل لإجابات المستخدم
+        # تحليل شامل
         user_analysis = apply_all_analysis_layers(str(answers))
 
-        # جلب شخصية الشات الذكية (أو توليد واحدة إذا لم تكن محفوظة)
+        # توليد أو استرجاع شخصية المدرب
         personality = get_cached_personality(user_analysis, lang)
         if not personality:
-            # توليد شخصية مدرب مخصصة حسب اللغة والتحليل
             personality = build_dynamic_personality(user_analysis, lang)
             key = f"{lang}_{hash(str(user_analysis))}"
             save_cached_personality(key, personality)
 
-        # توليد البرومبت الكامل بناء على التحليل والشخصية والتقييمات
+        # بناء البرومبت الكامل
         prompt = build_main_prompt(
             analysis=user_analysis,
             answers=answers,
@@ -96,16 +34,18 @@ def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang=
             lang=lang
         )
 
-        # إرسال إلى OpenAI
+        # إرسال الطلب إلى OpenAI
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.9
         )
-
         reply = response.choices[0].message.content.strip()
 
-        # حفظ في سجل التوصيات
+        # هل يحتوي الرد على سؤال؟
+        is_question = reply.endswith("؟")
+
+        # تسجيل في اللوج
         log_user_insight(
             user_id=user_id,
             content={
@@ -120,143 +60,19 @@ def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang=
             event_type="deeper_recommendation"
         )
 
-        return reply
-
-    except Exception as e:
-        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
-
-
-# -------------------------------
-# توليد شخصية الشات ديناميكيًا
-# -------------------------------
-def build_dynamic_personality(user_analysis, lang="العربية"):
-    if lang == "العربية":
         return {
-            "name": "مدرب Sports Sync",
-            "tone": "هادئ، عاطفي، وصادق",
-            "style": "تحليل نفسي عميق بأسلوب إنساني",
-            "philosophy": "الرياضة وسيلة لاكتشاف الذات، وليست فقط لتحسين الشكل الخارجي."
+            "reply": reply,
+            "awaiting_answer": is_question
         }
-    else:
+
+    except Exception as e:
         return {
-            "name": "Coach Sports Sync",
-            "tone": "Calm, Emotional, and Honest",
-            "style": "Deep psychological analysis with a human tone",
-            "philosophy": "Sport is a way to discover yourself, not just to improve your appearance."
+            "reply": f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}",
+            "awaiting_answer": False
         }
-import json
-from logic.user_analysis import apply_all_analysis_layers
-from logic.prompt_engine import build_main_prompt
-from logic.user_logger import log_user_insight
-from logic.memory_cache import get_cached_personality
-
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
-    try:
-        # ✅ تحليل شامل لإجابات المستخدم
-        user_analysis = apply_all_analysis_layers(str(answers))
-
-        # ✅ توليد شخصية ذكية ديناميكية أو استرجاعها من الكاش
-        personality = get_cached_personality(user_analysis, lang=lang)
-
-        # ✅ بناء برومبت التوصية الأعمق
-        prompt = build_main_prompt(
-            analysis=user_analysis,
-            answers=answers,
-            personality=personality,
-            previous_recommendation=previous_recommendation,
-            ratings=ratings,
-            lang=lang
-        )
-
-        # ✅ إرسال البرومبت إلى OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.9
-        )
-        reply = response.choices[0].message.content.strip()
-
-        # ✅ حفظ في سجل التحليل الذكي
-        log_user_insight(
-            user_id=user_id,
-            content={
-                "language": lang,
-                "answers": answers,
-                "ratings": ratings,
-                "user_analysis": user_analysis,
-                "previous_recommendation": previous_recommendation,
-                "deeper_recommendation": reply,
-                "personality_used": personality,
-            },
-            event_type="deeper_recommendation"
-        )
-
-        return reply
-
-    except Exception as e:
-        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
-from logic.user_logger import log_user_insight
-from logic.memory_cache import get_cached_personality, save_cached_personality
-
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
-    try:
-        # تحليل شامل لإجابات المستخدم
-        user_analysis = apply_all_analysis_layers(str(answers))
-
-        # جلب شخصية الشات الذكية (أو توليد واحدة إذا لم تكن محفوظة)
-        personality = get_cached_personality(user_analysis, lang)
-        if not personality:
-            # توليد شخصية مدرب مخصصة حسب اللغة والتحليل
-            personality = build_dynamic_personality(user_analysis, lang)
-            key = f"{lang}_{hash(str(user_analysis))}"
-            save_cached_personality(key, personality)
-
-        # توليد البرومبت الكامل بناء على التحليل والشخصية والتقييمات
-        prompt = build_main_prompt(
-            analysis=user_analysis,
-            answers=answers,
-            personality=personality,
-            previous_recommendation=previous_recommendation,
-            ratings=ratings,
-            lang=lang
-        )
-
-        # إرسال إلى OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.9
-        )
-
-        reply = response.choices[0].message.content.strip()
-
-        # حفظ في سجل التوصيات
-        log_user_insight(
-            user_id=user_id,
-            content={
-                "language": lang,
-                "answers": answers,
-                "ratings": ratings,
-                "user_analysis": user_analysis,
-                "previous_recommendation": previous_recommendation,
-                "deeper_recommendation": reply,
-                "personality_used": personality
-            },
-            event_type="deeper_recommendation"
-        )
-
-        return reply
-
-    except Exception as e:
-        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
-
 
 # -------------------------------
-# توليد شخصية الشات ديناميكيًا
+# توليد شخصية المدرب
 # -------------------------------
 def build_dynamic_personality(user_analysis, lang="العربية"):
     if lang == "العربية":
