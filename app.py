@@ -73,7 +73,7 @@ if "recommendations" not in st.session_state:
                 else:
                     answers[q_key] = [answers[q_key], custom_input]
 
-    answers["custom_input"] = st.text_area("✏️ هل هناك شيء تحب إضافته؟", "")
+    answers["custom_input"] = st.text_area("✏ هل هناك شيء تحب إضافته؟", "")
 
     if st.button("🔍 احصل على توصيتي الرياضية"):
         with st.spinner("جاري تحليل إجاباتك..."):
@@ -105,16 +105,19 @@ if "recommendations" in st.session_state:
             )
 
     if st.button("🔁 أريد توصية أعمق"):
-        with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
-            deeper_response = start_dynamic_chat(
-                answers=st.session_state["answers"],
-                previous_recommendation="\n".join(st.session_state["recommendations"]),
-                ratings=ratings,
-                user_id=st.session_state["user_id"],
-                lang=lang
-            )
-            st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
-            st.markdown(deeper_response)
+        if len(ratings) == 0:
+            st.error("يرجى تقييم التوصيات أولاً قبل طلب توصية أعمق.")
+        else:
+            with st.spinner("نقوم بتحليل تقييماتك وإجاباتك لإعطاء توصية أذكى..."):
+                deeper_response = start_dynamic_chat(
+                    answers=st.session_state["answers"],
+                    previous_recommendation="\n".join(st.session_state["recommendations"]),
+                    ratings=ratings,
+                    user_id=st.session_state["user_id"],
+                    lang=lang
+                )
+                st.markdown("### 💬 شات الذكاء الرياضي (Sports Sync AI Coach):")
+                st.markdown(deeper_response)
 
 # ---------------------
 # روابط المشاركة
