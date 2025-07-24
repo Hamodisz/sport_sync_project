@@ -10,7 +10,7 @@ from logic.user_logger import log_user_insight
 # إعداد الصفحة
 st.set_page_config(page_title="توصيتك الرياضية الذكية", layout="centered")
 
-# اختيار اللغة
+# اللغة
 lang = st.radio("🌐 اختر اللغة / Choose Language", ["العربية", "English"])
 
 # تهيئة الحالة
@@ -21,37 +21,38 @@ if "answers" not in st.session_state:
 if "user_id" not in st.session_state:
     st.session_state.user_id = "user_001"
 
-# ----------------------------------
-# عرض الأسئلة التحليلية في البداية
-# ----------------------------------
+# -------------------------------
+# عرض الأسئلة (في البداية فقط)
+# -------------------------------
 if not st.session_state.answers:
     st.markdown("## 📝 " + ("الأسئلة التحليلية" if lang == "العربية" else "Personality Questionnaire"))
 
-    # ✅ تصحيح اسم الملف بناءً على الصورة
-    question_file = "questions/arabic_questions.json" if lang == "العربية" else "questions/english_questions.json"
+    question_file = "data/questions_ar.json" if lang == "العربية" else "data/questions_en.json"
     with open(question_file, "r", encoding="utf-8") as f:
         questions = json.load(f)
 
     with st.form("questionnaire"):
         for q in questions:
             key = q["key"]
-            label = q["question_ar"] if lang == "العربية" else q["question_en"]
+            question = q["question_ar"] if lang == "العربية" else q["question_en"]
             options = q["options"]
             allow_custom = q.get("allow_custom", False)
 
-            answer = st.selectbox(label, options, key=key)
+            selected = st.multiselect(question, options, key=key)
+
             if allow_custom:
-                custom = st.text_input("اكتب إجابة مخصصة إن وجدت:" if lang == "العربية" else "Enter custom answer if any:", key=f"{key}_custom")
-                if custom.strip():
-                    answer = custom
-            st.session_state.answers[key] = answer
+                custom_input = st.text_input("إجابة مخصصة (اختياري):", key=f"{key}_custom")
+                if custom_input.strip():
+                    selected.append(custom_input.strip())
+
+            st.session_state.answers[key] = selected
 
         submitted = st.form_submit_button("🔍 تحليل الآن" if lang == "العربية" else "🔍 Analyze Now")
         if not submitted:
             st.stop()
 
 # -------------------------------
-# عرض التوصيات الثلاثة
+# التوصيات الثلاثة
 # -------------------------------
 st.markdown("## ✅ " + ("نتائج التوصيات" if lang == "العربية" else "Your Recommendations"))
 
@@ -71,7 +72,7 @@ display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alte
 display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative")
 
 # -------------------------------
-# محادثة الذكاء الرياضي التفاعلية
+# شات الذكاء التفاعلي
 # -------------------------------
 st.markdown("---")
 st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang == "العربية" else "Talk to the AI Coach"))
