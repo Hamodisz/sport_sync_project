@@ -1,121 +1,141 @@
 [
   {
-    "question": "What usually attracts you to a new activity?",
-    "options": ["Challenge", "Relaxation", "Social interaction", "Speed and excitement", "Mental focus"],
+    "key": "q1",
+    "question_en": "How do you usually react under sudden pressure?",
+    "options": ["I calm down and analyze the situation", "I act quickly without much thought", "I try to escape or withdraw", "I seek support from someone else"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Where do you feel most comfortable?",
-    "options": ["In nature", "In a well-organized indoor space", "In a busy place", "In a calm and quiet place"],
+    "key": "q2",
+    "question_en": "Which of these moments feels most enjoyable to you?",
+    "options": ["Scoring a goal with a team", "Jumping from a high place", "Training alone in a quiet space", "A mental competition with a strong opponent"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you usually handle sudden pressure?",
-    "options": ["Take action immediately", "Pause and analyze", "Avoid it", "Ask for help", "Channel it into performance"],
+    "key": "q3",
+    "question_en": "How do you prefer to learn something new?",
+    "options": ["By practice and trial", "By reading instructions and resources", "By watching and imitating", "With help from someone who explains it to me"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How would you describe your energy level most days?",
-    "options": ["Very high", "Moderate", "Low", "It depends on the day"],
-    "type": "single",
-    "allow_custom": true
-  },
-  {
-    "question": "Do you prefer solo or group activities?",
-    "options": ["Always solo", "Mostly solo", "A mix of both", "Mostly group", "Always group"],
-    "type": "single",
-    "allow_custom": true
-  },
-  {
-    "question": "How do you usually make decisions?",
-    "options": ["I go with my gut", "I think logically", "I weigh emotions", "I ask others first"],
+    "key": "q4",
+    "question_en": "What kind of challenges excite you the most?",
+    "options": ["Ones that require focus and calm", "Adventurous and risky ones", "Team-based challenges with group spirit", "Ones that demand patience and consistency"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What drives you to keep going when things get hard?",
-    "options": ["Personal goals", "Support from others", "Competition", "Discipline", "Fear of failure"],
+    "key": "q5",
+    "question_en": "How do you respond when you fail multiple times at something important?",
+    "options": ["I try a new way", "I feel frustrated and pause", "I ask someone who knows more", "I insist on trying the same method again"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "When trying something new, what describes you best?",
-    "options": ["I dive in immediately", "I watch others first", "I plan carefully", "I ask questions before starting"],
+    "key": "q6",
+    "question_en": "Where do you feel most comfortable?",
+    "options": ["In an energetic group", "In open nature", "In a competitive environment", "In a quiet and isolated place"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you feel about competition?",
-    "options": ["I love it", "I enjoy friendly rivalry", "I avoid it", "I focus on self-improvement"],
+    "key": "q7",
+    "question_en": "How do you recharge after a tiring day?",
+    "options": ["Go for a walk or move", "Sit in a calm place", "Talk to friends", "Start something new to engage me"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you deal with failure?",
-    "options": ["Try again with more effort", "Reflect and adjust", "Take a break", "Blame myself", "Ignore it"],
+    "key": "q8",
+    "question_en": "Do you like to plan before any activity?",
+    "options": ["Yes, I plan in detail", "I like to have a general idea", "I prefer complete spontaneity", "It depends on the type of activity"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What pace do you prefer when making progress?",
-    "options": ["Fast and intense", "Steady and consistent", "Flexible, depends on mood", "Slow but deep"],
+    "key": "q9",
+    "question_en": "You have a lot of energy — what’s the first thing that comes to mind?",
+    "options": ["Run or work out", "Go out with people", "Start a project or learn something", "Do something crazy I’ve never tried"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What makes you lose interest in an activity?",
-    "options": ["Repetition", "Lack of challenge", "No progress", "Too many people", "Too quiet"],
+    "key": "q10",
+    "question_en": "If you have a completely free day, what are you likely to do?",
+    "options": ["Try something new", "Organize postponed stuff", "Spend time with people", "Feel bored and look for physical activity"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you prefer to learn something new?",
-    "options": ["By doing", "By watching", "By reading", "With a coach", "Through trial and error"],
+    "key": "q11",
+    "question_en": "Is having a clear goal important in any activity or workout?",
+    "options": ["Yes, I lose motivation without one", "I prefer knowing the general benefit", "Not always, I sometimes do it just for fun", "It matters, but I don’t focus on it much"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How do you feel after a physical activity?",
-    "options": ["Energized", "Calm", "Tired but satisfied", "Exhausted", "Bored"],
+    "key": "q12",
+    "question_en": "How do you handle challenges in games or sports?",
+    "options": ["I get excited and give my best", "I feel pressure and don’t enjoy it", "I compete and laugh even if I lose", "I prefer less competitive games"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you enjoy pushing your physical limits?",
-    "options": ["Yes, always", "Sometimes", "Only with guidance", "Not really", "I avoid it"],
+    "key": "q13",
+    "question_en": "What kind of skills do you like to develop most?",
+    "options": ["Physical skills", "Mental focus and concentration", "Communication and interaction", "Self-control, breathing, and mindfulness"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "What does a perfect weekend look like?",
-    "options": ["Outdoor adventure", "Relaxing alone", "Team activities", "Exploring something new", "Working on a goal"],
+    "key": "q14",
+    "question_en": "Do you have previous experience with a sport? How was it?",
+    "options": ["Very positive, I’d love to repeat it", "It was hard but enjoyable", "Negative or discouraging", "Never tried any sport before"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you enjoy repetitive routines?",
-    "options": ["Yes, it builds discipline", "Only if I see progress", "No, I get bored", "I like to switch things up"],
+    "key": "q15",
+    "question_en": "Do you like sharing your sports achievements with others?",
+    "options": ["Yes, always", "Sometimes, depending on the achievement", "Rarely", "I don’t care to share"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "How much do you enjoy solving problems?",
-    "options": ["I love challenges", "If they’re physical", "If they’re strategic", "Not much", "Only with others"],
+    "key": "q16",
+    "question_en": "What makes you quit a sport or activity?",
+    "options": ["Get bored quickly", "No visible results", "People around me", "I don’t feel like I belong"],
     "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you prefer fast-paced or slow-paced environments?",
-    "options": ["Fast and intense", "Slow and mindful", "A mix", "Depends on the day"],
-    "type": "single",
+    "key": "q17",
+    "question_en": "How do you handle new instructions or rules?",
+    "options": ["Follow them precisely", "Apply after fully understanding", "Adapt them to my style", "Ignore them if they feel too complicated"],
+    "type": "multiple",
     "allow_custom": true
   },
   {
-    "question": "Do you like sharing your achievements?",
-    "options": ["Yes, I post them", "Only with close friends", "Not really", "I do it for myself"],
+    "key": "q18",
+    "question_en": "Do you prefer slow and steady progress or fast progress even with setbacks?",
+    "options": ["Slow and steady", "Fast even if risky", "Depends on what I’m working on", "I don’t think about it much"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "key": "q19",
+    "question_en": "How do you feel about competition?",
+    "options": ["It motivates me", "It scares me", "I try to avoid it", "It drives me to compare myself with others"],
+    "type": "multiple",
+    "allow_custom": true
+  },
+  {
+    "key": "q20",
+    "question_en": "What kind of environment makes you enjoy sports the most?",
+    "options": ["Bright lights, colors, and high energy", "Calm and nature", "Being around lots of people", "Private and no one watching"],
     "type": "multiple",
     "allow_custom": true
   }
