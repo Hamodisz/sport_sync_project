@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import json
 from logic.backend_gpt import generate_sport_recommendation
@@ -22,30 +20,28 @@ if "user_id" not in st.session_state:
     st.session_state.user_id = "user_001"
 
 # -------------------------------
-# عرض الأسئلة (في البداية فقط)
+# عرض الأسئلة
 # -------------------------------
 if not st.session_state.answers:
     st.markdown("## 📝 " + ("الأسئلة التحليلية" if lang == "العربية" else "Personality Questionnaire"))
 
-    question_file = "data/questions_ar.json" if lang == "العربية" else "data/questions_en.json"
+    question_file = "questions/arabic_questions.json" if lang == "العربية" else "questions/english_questions.json"
     with open(question_file, "r", encoding="utf-8") as f:
         questions = json.load(f)
 
     with st.form("questionnaire"):
         for q in questions:
             key = q["key"]
-            question = q["question_ar"] if lang == "العربية" else q["question_en"]
+            label = q["question_ar"] if lang == "العربية" else q["question_en"]
             options = q["options"]
             allow_custom = q.get("allow_custom", False)
 
-            selected = st.multiselect(question, options, key=key)
-
+            answer = st.radio(label, options, key=key)
             if allow_custom:
-                custom_input = st.text_input("إجابة مخصصة (اختياري):", key=f"{key}_custom")
-                if custom_input.strip():
-                    selected.append(custom_input.strip())
-
-            st.session_state.answers[key] = selected
+                custom = st.text_input("✏ " + ("إجابة مخصصة" if lang == "العربية" else "Custom answer"), key=f"{key}_custom")
+                if custom.strip():
+                    answer = custom
+            st.session_state.answers[key] = answer
 
         submitted = st.form_submit_button("🔍 تحليل الآن" if lang == "العربية" else "🔍 Analyze Now")
         if not submitted:
