@@ -1,6 +1,7 @@
 # app.py
 
 import streamlit as st
+import json
 from logic.backend_gpt import generate_sport_recommendation
 from logic.dynamic_chat import start_dynamic_chat
 from logic.memory_cache import get_cached_analysis
@@ -9,7 +10,7 @@ from logic.user_logger import log_user_insight
 # إعداد الصفحة
 st.set_page_config(page_title="توصيتك الرياضية الذكية", layout="centered")
 
-# اللغة
+# اختيار اللغة
 lang = st.radio("🌐 اختر اللغة / Choose Language", ["العربية", "English"])
 
 # تهيئة الحالة
@@ -20,14 +21,14 @@ if "answers" not in st.session_state:
 if "user_id" not in st.session_state:
     st.session_state.user_id = "user_001"
 
-# -------------------------------
-# عرض الأسئلة (في البداية فقط)
-# -------------------------------
+# ----------------------------------
+# عرض الأسئلة التحليلية في البداية
+# ----------------------------------
 if not st.session_state.answers:
     st.markdown("## 📝 " + ("الأسئلة التحليلية" if lang == "العربية" else "Personality Questionnaire"))
 
-    import json
-    question_file = "data/questions_ar.json" if lang == "العربية" else "data/questions_en.json"
+    # ✅ تصحيح اسم الملف بناءً على الصورة
+    question_file = "questions/arabic_questions.json" if lang == "العربية" else "questions/english_questions.json"
     with open(question_file, "r", encoding="utf-8") as f:
         questions = json.load(f)
 
@@ -40,7 +41,7 @@ if not st.session_state.answers:
 
             answer = st.selectbox(label, options, key=key)
             if allow_custom:
-                custom = st.text_input("اكتب إجابة مخصصة إن وجدت:", key=f"{key}_custom")
+                custom = st.text_input("اكتب إجابة مخصصة إن وجدت:" if lang == "العربية" else "Enter custom answer if any:", key=f"{key}_custom")
                 if custom.strip():
                     answer = custom
             st.session_state.answers[key] = answer
@@ -50,7 +51,7 @@ if not st.session_state.answers:
             st.stop()
 
 # -------------------------------
-# التوصيات الثلاثة
+# عرض التوصيات الثلاثة
 # -------------------------------
 st.markdown("## ✅ " + ("نتائج التوصيات" if lang == "العربية" else "Your Recommendations"))
 
@@ -70,7 +71,7 @@ display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alte
 display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative")
 
 # -------------------------------
-# شات الذكاء التفاعلي
+# محادثة الذكاء الرياضي التفاعلية
 # -------------------------------
 st.markdown("---")
 st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang == "العربية" else "Talk to the AI Coach"))
