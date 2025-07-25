@@ -8,7 +8,7 @@ from logic.user_logger import log_user_insight
 # إعداد الصفحة
 st.set_page_config(page_title="توصيتك الرياضية الذكية", layout="centered")
 
-# اللغة
+# اختيار اللغة
 lang = st.radio("🌐 اختر اللغة / Choose Language", ["العربية", "English"])
 
 # تهيئة الحالة
@@ -18,6 +18,8 @@ if "answers" not in st.session_state:
     st.session_state.answers = {}
 if "user_id" not in st.session_state:
     st.session_state.user_id = "user_001"
+if "ratings" not in st.session_state:
+    st.session_state.ratings = {}
 
 # -------------------------------
 # عرض الأسئلة
@@ -50,17 +52,14 @@ if not st.session_state.answers:
             st.stop()
 
 # -------------------------------
-# التوصيات الثلاثة
+# عرض التوصيات الثلاثة
 # -------------------------------
 st.markdown("## ✅ " + ("نتائج التوصيات" if lang == "العربية" else "Your Recommendations"))
 
-def display_recommendation(title, key, method):
-    st.subheader(title)
+def display_recommendation(title, key, method, box_type="default"):
     if key not in st.session_state:
         try:
-            recs = generate_sport_recommendation(
-                st.session_state.answers, lang
-            )
+            recs = generate_sport_recommendation(st.session_state.answers, lang)
             methods = {
                 "standard": recs[0] if len(recs) > 0 else "⚠ لا توجد توصية.",
                 "alternative": recs[1] if len(recs) > 1 else "⚠ لا توجد توصية.",
@@ -68,12 +67,26 @@ def display_recommendation(title, key, method):
             }
             st.session_state[key] = methods[method]
         except Exception as e:
-            st.session_state[key] = f"⚠ لم يتم العثور على توصية: {str(e)}"
-    st.markdown(st.session_state[key])
+            st.session_state[key] = f"⚠ خطأ: {str(e)}"
 
-display_recommendation("🥇 التوصية رقم 1", "recommendation_1", "standard")
-display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alternative")
-display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative")
+    st.subheader(title)
+    if box_type == "success":
+        st.success(st.session_state[key])
+    elif box_type == "info":
+        st.info(st.session_state[key])
+    else:
+        st.warning(st.session_state[key])
+
+    # عرض التقييم
+    st.session_state.ratings[key] = st.slider(
+        "⭐ " + ("قيّم هذه التوصية" if lang == "العربية" else "Rate this recommendation"),
+        1, 5, key=f"rating_{key}"
+    )
+
+# عرض التوصيات الثلاثة
+display_recommendation("🥇 التوصية رقم 1", "recommendation_1", "standard", box_type="success")
+display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alternative", box_type="info")
+display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative", box_type="default")
 
 # -------------------------------
 # شات الذكاء التفاعلي
@@ -84,9 +97,9 @@ st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang ==
 for entry in st.session_state.chat_history:
     role, content = entry["role"], entry["content"]
     if role == "user":
-        st.markdown(f"🧍‍♂ *أنت:* {content}", unsafe_allow_html=True)
+        st.markdown(f"🧍‍♂ أنت: {content}", unsafe_allow_html=True)
     else:
-        st.markdown(f"🤖 *Sports Sync:* {content}", unsafe_allow_html=True)
+        st.markdown(f"🤖 Sports Sync: {content}", unsafe_allow_html=True)
 
 user_input = st.chat_input("🗨 " + ("اكتب ردك أو اسأل أي سؤال..." if lang == "العربية" else "Type your response or ask a question..."))
 
@@ -100,7 +113,7 @@ if user_input:
             st.session_state.get("recommendation_2", ""),
             st.session_state.get("recommendation_3", ""),
         ],
-        ratings={},  # حالياً فارغ
+        ratings=st.session_state.ratings,
         user_id=st.session_state.user_id,
         lang=lang
     )
