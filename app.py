@@ -58,11 +58,17 @@ def display_recommendation(title, key, method):
     st.subheader(title)
     if key not in st.session_state:
         try:
-            st.session_state[key] = generate_sport_recommendation(
-                st.session_state.answers, lang, method=method
+            recs = generate_sport_recommendation(
+                st.session_state.answers, lang
             )
-        except:
-            st.session_state[key] = "⚠ لم يتم العثور على توصية." if lang == "العربية" else "⚠ No recommendation found."
+            methods = {
+                "standard": recs[0] if len(recs) > 0 else "⚠ لا توجد توصية.",
+                "alternative": recs[1] if len(recs) > 1 else "⚠ لا توجد توصية.",
+                "creative": recs[2] if len(recs) > 2 else "⚠ لا توجد توصية.",
+            }
+            st.session_state[key] = methods[method]
+        except Exception as e:
+            st.session_state[key] = f"⚠ لم يتم العثور على توصية: {str(e)}"
     st.markdown(st.session_state[key])
 
 display_recommendation("🥇 التوصية رقم 1", "recommendation_1", "standard")
@@ -87,14 +93,15 @@ user_input = st.chat_input("🗨 " + ("اكتب ردك أو اسأل أي سؤا
 if user_input:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
 
-    analysis = get_cached_analysis(st.session_state.user_id)
-
     reply = start_dynamic_chat(
-        user_id=st.session_state.user_id,
-        user_message=user_input,
-        previous_chat=st.session_state.chat_history,
-        analysis=analysis,
         answers=st.session_state.answers,
+        previous_recommendation=[
+            st.session_state.get("recommendation_1", ""),
+            st.session_state.get("recommendation_2", ""),
+            st.session_state.get("recommendation_3", ""),
+        ],
+        ratings={},  # حالياً فارغ
+        user_id=st.session_state.user_id,
         lang=lang
     )
 
