@@ -36,11 +36,13 @@ if not st.session_state.answers:
             options = q["options"]
             allow_custom = q.get("allow_custom", False)
 
-            answer = st.radio(label, options, key=key)
+            answer = st.multiselect(label, options, key=key)
+
             if allow_custom:
                 custom = st.text_input("✏ " + ("إجابة مخصصة" if lang == "العربية" else "Custom answer"), key=f"{key}_custom")
                 if custom.strip():
-                    answer = custom
+                    answer.append(custom.strip())
+
             st.session_state.answers[key] = answer
 
         submitted = st.form_submit_button("🔍 تحليل الآن" if lang == "العربية" else "🔍 Analyze Now")
