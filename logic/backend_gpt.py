@@ -8,6 +8,9 @@ from logic.user_analysis import analyze_user_from_answers
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ------------------------------
+# توليد التوصيات
+# ------------------------------
 def generate_sport_recommendation(answers, lang="العربية"):
     try:
         user_analysis = analyze_user_from_answers(answers)
@@ -26,6 +29,7 @@ def generate_sport_recommendation(answers, lang="العربية"):
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.9,
+            max_tokens=1000  # 🔥 لضمان استجابة كافية الطول
         )
 
         full_response = completion.choices[0].message.content.strip()
@@ -47,16 +51,26 @@ def generate_sport_recommendation(answers, lang="العربية"):
     except Exception as e:
         return [f"❌ حدث خطأ أثناء توليد التوصية: {str(e)}"]
 
+
+# ------------------------------
+# تقسيم التوصيات
+# ------------------------------
 def split_recommendations(full_text):
     recs = []
     lines = full_text.splitlines()
     buffer = []
+
     for line in lines:
-        if "التوصية" in line and len(buffer) > 0:
+        if "التوصية" in line and buffer:
             recs.append("\n".join(buffer).strip())
             buffer = [line]
         else:
             buffer.append(line)
     if buffer:
         recs.append("\n".join(buffer).strip())
+
+    # إكمال التوصيات لو ناقصة
+    while len(recs) < 3:
+        recs.append("⚠ لا توجد توصية.")
+
     return recs[:3]
