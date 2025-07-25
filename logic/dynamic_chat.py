@@ -1,118 +1,72 @@
-import streamlit as st
-import json
-from logic.backend_gpt import generate_sport_recommendation
-from logic.dynamic_chat import start_dynamic_chat
-from logic.memory_cache import get_cached_analysis
+import openai
+import os
+from logic.user_analysis import apply_all_analysis_layers
+from logic.shared_utils import build_main_prompt
 from logic.user_logger import log_user_insight
+from logic.memory_cache import get_cached_personality, save_cached_personality
 
-# إعداد الصفحة
-st.set_page_config(page_title="توصيتك الرياضية الذكية", layout="centered")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# اللغة
-lang = st.radio("🌐 اختر اللغة / Choose Language", ["العربية", "English"])
+def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
+    try:
+        user_analysis = apply_all_analysis_layers(str(answers))
+        personality = get_cached_personality(user_analysis, lang)
+        if not personality:
+            personality = build_dynamic_personality(user_analysis, lang)
+            key = f"{lang}_{hash(str(user_analysis))}"
+            save_cached_personality(key, personality)
 
-# تهيئة الحالة
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
-if "user_id" not in st.session_state:
-    st.session_state.user_id = "user_001"
+        prompt = build_main_prompt(
+            analysis=user_analysis,
+            answers=answers,
+            personality=personality,
+            previous_recommendation=previous_recommendation,
+            ratings=ratings,
+            lang=lang
+        )
 
-# -------------------------------
-# عرض الأسئلة
-# -------------------------------
-if not st.session_state.answers:
-    st.markdown("## 📝 " + ("الأسئلة التحليلية" if lang == "العربية" else "Personality Questionnaire"))
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.9
+        )
 
-    question_file = "questions/arabic_questions.json" if lang == "العربية" else "questions/english_questions.json"
-    with open(question_file, "r", encoding="utf-8") as f:
-        questions = json.load(f)
+        reply = response.choices[0].message.content.strip()
 
-    with st.form("questionnaire"):
-        for q in questions:
-            key = q["key"]
-            label = q["question_ar"] if lang == "العربية" else q["question_en"]
-            options = q["options"]
-            multiple = q.get("allow_multiple", False)
-            allow_custom = q.get("allow_custom", False)
+        log_user_insight(
+            user_id=user_id,
+            content={
+                "language": lang,
+                "answers": answers,
+                "ratings": ratings,
+                "user_analysis": user_analysis,
+                "previous_recommendation": previous_recommendation,
+                "deeper_recommendation": reply,
+                "personality_used": personality
+            },
+            event_type="deeper_recommendation"
+        )
 
-            if multiple:
-                answer = st.multiselect(label, options, key=key)
-            else:
-                answer = st.radio(label, options, key=key)
+        return reply
 
-            if allow_custom:
-                custom = st.text_input("✏ " + ("إجابة مخصصة" if lang == "العربية" else "Custom answer"), key=f"{key}_custom")
-                if custom.strip():
-                    if multiple:
-                        answer.append(custom)
-                    else:
-                        answer = custom
-
-            st.session_state.answers[key] = answer
-
-        submitted = st.form_submit_button("🔍 تحليل الآن" if lang == "العربية" else "🔍 Analyze Now")
-        if not submitted:
-            st.stop()
+    except Exception as e:
+        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
 
 # -------------------------------
-# التوصيات الثلاثة
+# توليد شخصية الشات ديناميكيًا
 # -------------------------------
-st.markdown("## ✅ " + ("نتائج التوصيات" if lang == "العربية" else "Your Recommendations"))
-
-def display_recommendation(title, key, method):
-    st.subheader(title)
-    if key not in st.session_state:
-        try:
-            st.session_state[key] = generate_sport_recommendation(
-                st.session_state.answers, lang, method=method
-            )
-        except:
-            st.session_state[key] = "⚠ لم يتم العثور على توصية." if lang == "العربية" else "⚠ No recommendation found."
-    st.markdown(st.session_state[key])
-
-display_recommendation("🥇 التوصية رقم 1", "recommendation_1", "standard")
-display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alternative")
-display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative")
-
-# -------------------------------
-# شات الذكاء التفاعلي
-# -------------------------------
-st.markdown("---")
-st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang == "العربية" else "Talk to the AI Coach"))
-
-for entry in st.session_state.chat_history:
-    role, content = entry["role"], entry["content"]
-    if role == "user":
-        st.markdown(f"🧍‍♂ *أنت:* {content}", unsafe_allow_html=True)
+def build_dynamic_personality(user_analysis, lang="العربية"):
+    if lang == "العربية":
+        return {
+            "name": "مدرب Sports Sync",
+            "tone": "هادئ، عاطفي، وصادق",
+            "style": "تحليل نفسي عميق بأسلوب إنساني",
+            "philosophy": "الرياضة وسيلة لاكتشاف الذات، وليست فقط لتحسين الشكل الخارجي."
+        }
     else:
-        st.markdown(f"🤖 *Sports Sync:* {content}", unsafe_allow_html=True)
-
-user_input = st.chat_input("🗨 " + ("اكتب ردك أو اسأل أي سؤال..." if lang == "العربية" else "Type your response or ask a question..."))
-
-if user_input:
-    st.session_state.chat_history.append({"role": "user", "content": user_input})
-
-    analysis = get_cached_analysis(st.session_state.user_id)
-    ratings = {}  # عدل هنا لاحقًا إذا عندك تقييمات من المستخدم
-
-    reply = start_dynamic_chat(
-        answers=st.session_state.answers,
-        previous_recommendation=st.session_state.get("recommendation_1", ""),
-        ratings=ratings,
-        user_id=st.session_state.user_id,
-        lang=lang
-    )
-
-    st.session_state.chat_history.append({"role": "assistant", "content": reply})
-
-    log_user_insight(st.session_state.user_id, {
-        "type": "chat_interaction",
-        "user_message": user_input,
-        "ai_reply": reply,
-        "lang": lang,
-        "full_chat": st.session_state.chat_history
-    })
-
-    st.rerun()
+        return {
+            "name": "Coach Sports Sync",
+            "tone": "Calm, Emotional, and Honest",
+            "style": "Deep psychological analysis with a human tone",
+            "philosophy": "Sport is a way to discover yourself, not just to improve your appearance."
+        }
