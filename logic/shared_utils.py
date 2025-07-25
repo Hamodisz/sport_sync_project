@@ -24,8 +24,10 @@ def build_main_prompt(analysis, answers, personality, previous_recommendation, r
 📊 تقييم المستخدم للتوصيات السابقة:
 {ratings}
 
-📌 التوصية السابقة التي قُدمت له:
-{previous_recommendation}
+📌 التوصيات الثلاثة التي قُدمت سابقًا:
+1. {previous_recommendation[0] if len(previous_recommendation) > 0 else "—"}
+2. {previous_recommendation[1] if len(previous_recommendation) > 1 else "—"}
+3. {previous_recommendation[2] if len(previous_recommendation) > 2 else "—"}
 
 🎯 المطلوب الآن:
 بناءً على كل ما سبق، اعطني توصية أعمق وأصدق. لا تكرر نفس التوصيات، ولا تذكر الرياضات الثلاثة السابقة. وجهه إلى شيء يلائم أعماقه ويحفز روحه. إذا لم تكن هناك رياضة حقيقية تناسبه، يمكنك اختراع أو دمج رياضة جديدة خصيصًا له.
@@ -53,8 +55,10 @@ Philosophy: {personality.get("philosophy")}
 📊 User's Ratings on Previous Recommendations:
 {ratings}
 
-📌 Previous Recommendation Given:
-{previous_recommendation}
+📌 Previous Three Recommendations:
+1. {previous_recommendation[0] if len(previous_recommendation) > 0 else "—"}
+2. {previous_recommendation[1] if len(previous_recommendation) > 1 else "—"}
+3. {previous_recommendation[2] if len(previous_recommendation) > 2 else "—"}
 
 🎯 Your task now:
 Based on everything above, give a deeper, more meaningful sport suggestion.
@@ -65,6 +69,7 @@ If no real sport fits them perfectly, invent or hybridize one that does.
 - Make it realistic, innovative, and inspiring.
 """
     return prompt
+
 
 # ------------------------------
 # [2] دالة 3 توصيات رئيسية - للbackend
