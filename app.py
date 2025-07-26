@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import json
 from logic.backend_gpt import generate_sport_recommendation
@@ -7,13 +5,12 @@ from logic.dynamic_chat import start_dynamic_chat
 from logic.memory_cache import get_cached_analysis
 from logic.user_logger import log_user_insight
 
-# إعداد الصفحة
 st.set_page_config(page_title="توصيتك الرياضية الذكية", layout="centered")
 
-# اختيار اللغة
+# اللغة
 lang = st.radio("🌐 اختر اللغة / Choose Language", ["العربية", "English"])
 
-# تهيئة الحالة
+# الجلسة
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "answers" not in st.session_state:
@@ -23,9 +20,7 @@ if "user_id" not in st.session_state:
 if "ratings" not in st.session_state:
     st.session_state.ratings = {}
 
-# -------------------------------
 # عرض الأسئلة
-# -------------------------------
 if not st.session_state.answers:
     st.markdown("## 📝 " + ("الأسئلة التحليلية" if lang == "العربية" else "Personality Questionnaire"))
 
@@ -53,9 +48,7 @@ if not st.session_state.answers:
         if not submitted:
             st.stop()
 
-# -------------------------------
-# عرض التوصيات الثلاثة
-# -------------------------------
+# التوصيات الثلاثة
 st.markdown("## ✅ " + ("نتائج التوصيات" if lang == "العربية" else "Your Recommendations"))
 
 def display_recommendation(title, key, method, box_type="default"):
@@ -79,36 +72,42 @@ def display_recommendation(title, key, method, box_type="default"):
     else:
         st.warning(st.session_state[key])
 
-    # عرض التقييم
     st.session_state.ratings[key] = st.slider(
         "⭐ " + ("قيّم هذه التوصية" if lang == "العربية" else "Rate this recommendation"),
         1, 5, key=f"rating_{key}"
     )
 
-# عرض التوصيات الثلاثة
 display_recommendation("🥇 التوصية رقم 1", "recommendation_1", "standard", box_type="success")
 display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alternative", box_type="info")
 display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative", box_type="default")
 
-# -------------------------------
-# شات الذكاء التفاعلي الحقيقي
-# -------------------------------
+# شات تفاعلي
 st.markdown("---")
 st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang == "العربية" else "Talk to the AI Coach"))
 
+# عرض الشات برسائل ملوّنة وواضحة
 for entry in st.session_state.chat_history:
     role, content = entry["role"], entry["content"]
     if role == "user":
         st.markdown(
-            f"<div style='background-color:#e8f0fe; padding:10px; border-radius:8px; margin-bottom:5px;'><b>🧍‍♂ أنت:</b><br>{content}</div>",
+            f"""
+            <div style='background-color:#f0f0f0; color:#000; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right;'>
+                <strong>أنت:</strong><br>{content}
+            </div>
+            """,
             unsafe_allow_html=True
         )
     else:
         st.markdown(
-            f"<div style='background-color:#f1f8e9; padding:10px; border-radius:8px; margin-bottom:5px;'><b>🤖 Sports Sync:</b><br>{content}</div>",
+            f"""
+            <div style='background-color:#3F8CFF; color:white; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right;'>
+                <strong>Sports Sync:</strong><br>{content}
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
+# إدخال المستخدم
 user_input = st.chat_input("🗨 " + ("اكتب ردك أو اسأل أي سؤال..." if lang == "العربية" else "Type your response or ask a question..."))
 
 if user_input:
@@ -124,7 +123,8 @@ if user_input:
         ratings=st.session_state.ratings,
         user_id=st.session_state.user_id,
         lang=lang,
-        chat_history=st.session_state.chat_history
+        chat_history=st.session_state.chat_history,
+        user_message=user_input
     )
 
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
