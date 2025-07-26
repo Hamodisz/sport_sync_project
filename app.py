@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import json
 from logic.backend_gpt import generate_sport_recommendation
@@ -89,7 +91,7 @@ display_recommendation("🌿 التوصية رقم 2", "recommendation_2", "alte
 display_recommendation("🌌 التوصية رقم 3 (ابتكارية)", "recommendation_3", "creative", box_type="default")
 
 # -------------------------------
-# شات الذكاء التفاعلي
+# شات الذكاء التفاعلي الحقيقي
 # -------------------------------
 st.markdown("---")
 st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang == "العربية" else "Talk to the AI Coach"))
@@ -97,9 +99,15 @@ st.markdown("## 🧠 " + ("تحدث مع الذكاء الرياضي" if lang ==
 for entry in st.session_state.chat_history:
     role, content = entry["role"], entry["content"]
     if role == "user":
-        st.markdown(f"🧍‍♂ أنت: {content}", unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='background-color:#e8f0fe; padding:10px; border-radius:8px; margin-bottom:5px;'><b>🧍‍♂ أنت:</b><br>{content}</div>",
+            unsafe_allow_html=True
+        )
     else:
-        st.markdown(f"🤖 Sports Sync: {content}", unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='background-color:#f1f8e9; padding:10px; border-radius:8px; margin-bottom:5px;'><b>🤖 Sports Sync:</b><br>{content}</div>",
+            unsafe_allow_html=True
+        )
 
 user_input = st.chat_input("🗨 " + ("اكتب ردك أو اسأل أي سؤال..." if lang == "العربية" else "Type your response or ask a question..."))
 
@@ -115,7 +123,8 @@ if user_input:
         ],
         ratings=st.session_state.ratings,
         user_id=st.session_state.user_id,
-        lang=lang
+        lang=lang,
+        chat_history=st.session_state.chat_history
     )
 
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
