@@ -7,16 +7,26 @@ from logic.memory_cache import get_cached_personality, save_cached_personality
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية"):
+# -------------------------------
+# المحادثة التفاعلية الكاملة
+# -------------------------------
+def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang="العربية", chat_history=[], user_message=""):
     try:
+        # تحليل المستخدم
         user_analysis = apply_all_analysis_layers(str(answers))
+
+        # توليد أو جلب شخصية المدرب
         personality = get_cached_personality(user_analysis, lang)
         if not personality:
             personality = build_dynamic_personality(user_analysis, lang)
             key = f"{lang}_{hash(str(user_analysis))}"
             save_cached_personality(key, personality)
 
-        prompt = build_main_prompt(
+        # بناء الرسائل
+        messages = []
+
+        # مقدمة سياقية في أول رسالة للنموذج
+        intro_prompt = build_main_prompt(
             analysis=user_analysis,
             answers=answers,
             personality=personality,
@@ -24,15 +34,26 @@ def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang=
             ratings=ratings,
             lang=lang
         )
+        messages.append({"role": "system", "content": intro_prompt})
 
+        # تضمين سجل المحادثة السابق (سؤال-جواب)
+        for entry in chat_history:
+            messages.append({"role": entry["role"], "content": entry["content"]})
+
+        # تضمين رسالة المستخدم الأخيرة (رده الحالي)
+        if user_message:
+            messages.append({"role": "user", "content": user_message})
+
+        # إرسال للموديل
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
             temperature=0.9
         )
 
         reply = response.choices[0].message.content.strip()
 
+        # حفظ التفاعل
         log_user_insight(
             user_id=user_id,
             content={
@@ -41,19 +62,21 @@ def start_dynamic_chat(answers, previous_recommendation, ratings, user_id, lang=
                 "ratings": ratings,
                 "user_analysis": user_analysis,
                 "previous_recommendation": previous_recommendation,
-                "deeper_recommendation": reply,
-                "personality_used": personality
+                "personality_used": personality,
+                "user_message": user_message,
+                "ai_reply": reply,
+                "full_chat": chat_history + [{"role": "user", "content": user_message}, {"role": "assistant", "content": reply}]
             },
-            event_type="deeper_recommendation"
+            event_type="chat_interaction"
         )
 
         return reply
 
     except Exception as e:
-        return f"❌ حدث خطأ أثناء توليد التوصية الأعمق: {str(e)}"
+        return f"❌ حدث خطأ أثناء المحادثة الديناميكية: {str(e)}"
 
 # -------------------------------
-# توليد شخصية الشات ديناميكيًا
+# توليد شخصية المدرب الديناميكية
 # -------------------------------
 def build_dynamic_personality(user_analysis, lang="العربية"):
     if lang == "العربية":
